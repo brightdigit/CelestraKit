@@ -1,0 +1,15 @@
+{
+  "originHash" : "5d98af3da157d6faa21ae9b7bb746f00f8f1250d7252c2c0fadf8633fa51c882",
+  "pins" : [
+    {
+      "identity" : "xmlcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/XMLCoder",
+      "state" : {
+        "revision" : "8ba70f27664ea8c8b7f38fb4c6f2fd4c129eb9c5",
+        "version" : "1.0.0-alpha.1"
+      }
+    }
+  ],
+  "version" : 3
+}
