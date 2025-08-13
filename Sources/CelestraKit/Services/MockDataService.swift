@@ -62,7 +62,7 @@ public struct MockDataService: Sendable {
 
   // MARK: - Mock Articles
 
-  public func articles(for feedID: UUID? = nil) -> [Article] {
+  public func articles(for feedID: URL? = nil) -> [Article] {
     let allArticles = generateMockArticles()
 
     if let feedID = feedID {
@@ -84,7 +84,7 @@ public struct MockDataService: Sendable {
 
         articles.append(
           Article(
-            feedID: feed.id,
+            feedID: feed.url,
             title: mockTitles[i % mockTitles.count],
             excerpt: mockExcerpts[i % mockExcerpts.count],
             content: mockContent,

@@ -15,7 +15,7 @@
       VStack(alignment: .leading, spacing: 12) {
         // Header with feed info and date
         HStack {
-          if let feed = MockDataService.shared.feeds.first(where: { $0.id == article.feedID }) {
+          if let feed = MockDataService.shared.feeds.first(where: { $0.url == article.feedID }) {
             Label(feed.title, systemImage: feed.category.icon)
               .font(.caption)
               .foregroundStyle(.secondary)

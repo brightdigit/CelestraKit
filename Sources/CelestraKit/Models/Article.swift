@@ -6,9 +6,9 @@
 public import Foundation
 
 /// Mock Article model for UI prototyping
-public struct Article: Identifiable, Sendable {
+public struct Article: Identifiable, Sendable, Codable {
   public let id: UUID
-  public let feedID: UUID
+  public let feedID: URL
   public let title: String
   public let excerpt: String?
   public let content: String?
@@ -23,7 +23,7 @@ public struct Article: Identifiable, Sendable {
 
   public init(
     id: UUID = UUID(),
-    feedID: UUID,
+    feedID: URL,
     title: String,
     excerpt: String? = nil,
     content: String? = nil,
