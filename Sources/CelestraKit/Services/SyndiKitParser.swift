@@ -102,28 +102,24 @@ extension SyndiKitParser {
       guard let placeholderURL = URL(string: "https://example.com/\(entryable.id)") else {
         throw FeedParserError.invalidArticleURL
       }
-      return createArticle(
+      let articleBuilder = createArticle(
         feedID: feedID,
         title: entryable.title,
         excerpt: entryable.summary,
         content: entryable.contentHtml,
-        author: authorString.isEmpty ? nil : authorString,
-        url: placeholderURL,
-        imageURL: entryable.imageURL,
-        publishedDate: entryable.published ?? Date()
+        author: authorString.isEmpty ? nil : authorString
       )
+      return articleBuilder(placeholderURL, entryable.imageURL, entryable.published ?? Date())
     }
 
-    return createArticle(
+    let articleBuilder = createArticle(
       feedID: feedID,
       title: entryable.title,
       excerpt: entryable.summary,
       content: entryable.contentHtml,
-      author: authorString.isEmpty ? nil : authorString,
-      url: url,
-      imageURL: entryable.imageURL,
-      publishedDate: entryable.published ?? Date()
+      author: authorString.isEmpty ? nil : authorString
     )
+    return articleBuilder(url, entryable.imageURL, entryable.published ?? Date())
   }
 
   private func createArticle(
@@ -131,21 +127,20 @@ extension SyndiKitParser {
     title: String,
     excerpt: String?,
     content: String?,
-    author: String?,
-    url: URL,
-    imageURL: URL?,
-    publishedDate: Date
-  ) -> Article {
-    Article(
-      feedID: feedID,
-      title: title,
-      excerpt: excerpt,
-      content: content,
-      author: author,
-      url: url,
-      imageURL: imageURL,
-      publishedDate: publishedDate
-    )
+    author: String?
+  ) -> (URL, URL?, Date) -> Article {
+    { url, imageURL, publishedDate in
+      Article(
+        feedID: feedID,
+        title: title,
+        excerpt: excerpt,
+        content: content,
+        author: author,
+        url: url,
+        imageURL: imageURL,
+        publishedDate: publishedDate
+      )
+    }
   }
 
   fileprivate func detectFeedFormat(_ feedable: Feedable) -> FeedFormat {
