@@ -12,7 +12,7 @@ public enum ParsingPriority: Int, Sendable, Comparable, Codable {
   case high = 3
   case normal = 2
   case low = 1
-  
+
   public static func < (lhs: ParsingPriority, rhs: ParsingPriority) -> Bool {
     lhs.rawValue < rhs.rawValue
   }
@@ -26,7 +26,7 @@ public enum ParsingTaskState: Sendable, Codable {
   case failed(Error, retryCount: Int)
   case cancelled
   case circuitOpen
-  
+
   public var isTerminal: Bool {
     switch self {
     case .completed, .cancelled, .circuitOpen:
@@ -43,7 +43,7 @@ public struct RetryConfig: Sendable, Codable {
   public let baseDelay: TimeInterval
   public let maxDelay: TimeInterval
   public let jitterFactor: Double
-  
+
   public init(
     maxRetries: Int = 5,
     baseDelay: TimeInterval = 1.0,
@@ -55,7 +55,7 @@ public struct RetryConfig: Sendable, Codable {
     self.maxDelay = maxDelay
     self.jitterFactor = jitterFactor
   }
-  
+
   /// Calculate delay for retry attempt with exponential backoff and jitter
   public func delay(for attempt: Int) -> TimeInterval {
     let exponentialDelay = min(baseDelay * pow(2.0, Double(attempt)), maxDelay)
@@ -72,37 +72,38 @@ public final class ParsingTask: @unchecked Sendable, Identifiable {
   public let retryConfig: RetryConfig
   public let createdAt: Date
   public let userInitiated: Bool
-  
+
   private let _state = OSAllocatedUnfairLock(initialState: ParsingTaskState.pending)
   private let _retryCount = OSAllocatedUnfairLock(initialState: 0)
   private let _lastAttemptAt = OSAllocatedUnfairLock<Date?>(initialState: nil)
-  
+
   public var state: ParsingTaskState {
     _state.withLock { $0 }
   }
-  
+
   public var retryCount: Int {
     _retryCount.withLock { $0 }
   }
-  
+
   public var lastAttemptAt: Date? {
     _lastAttemptAt.withLock { $0 }
   }
-  
+
   public var shouldRetry: Bool {
     guard case .failed(_, let currentRetryCount) = state else { return false }
     return currentRetryCount < retryConfig.maxRetries
   }
-  
+
   public var nextRetryAt: Date? {
     guard case .failed(_, let currentRetryCount) = state,
-          let lastAttempt = lastAttemptAt,
-          shouldRetry else { return nil }
-    
+      let lastAttempt = lastAttemptAt,
+      shouldRetry
+    else { return nil }
+
     let delay = retryConfig.delay(for: currentRetryCount)
     return lastAttempt.addingTimeInterval(delay)
   }
-  
+
   public init(
     url: URL,
     priority: ParsingPriority = .normal,
@@ -116,7 +117,7 @@ public final class ParsingTask: @unchecked Sendable, Identifiable {
     self.createdAt = Date()
     self.userInitiated = userInitiated
   }
-  
+
   /// Update task state atomically
   public func updateState(_ newState: ParsingTaskState) {
     _state.withLock { currentState in
@@ -124,7 +125,7 @@ public final class ParsingTask: @unchecked Sendable, Identifiable {
       guard !currentState.isTerminal else { return }
       currentState = newState
     }
-    
+
     // Update timestamps for tracking
     switch newState {
     case .running, .failed:
@@ -135,21 +136,22 @@ public final class ParsingTask: @unchecked Sendable, Identifiable {
       break
     }
   }
-  
+
   /// Increment retry count and update state
   public func recordFailure(_ error: Error) {
     let newRetryCount = _retryCount.withLock { count in
       count += 1
       return count
     }
-    
+
     updateState(.failed(error, retryCount: newRetryCount))
   }
-  
+
   /// Check if task is ready for retry
   public func isReadyForRetry(at date: Date = Date()) -> Bool {
     guard shouldRetry,
-          let nextRetry = nextRetryAt else { return false }
+      let nextRetry = nextRetryAt
+    else { return false }
     return date >= nextRetry
   }
 }
@@ -160,7 +162,7 @@ extension ParsingTask: Hashable, Equatable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
-  
+
   public static func == (lhs: ParsingTask, rhs: ParsingTask) -> Bool {
     lhs.id == rhs.id
   }
@@ -174,12 +176,12 @@ extension ParsingTask: Comparable {
     if lhs.priority != rhs.priority {
       return lhs.priority > rhs.priority
     }
-    
+
     // User-initiated tasks first
     if lhs.userInitiated != rhs.userInitiated {
       return lhs.userInitiated && !rhs.userInitiated
     }
-    
+
     // Earlier creation time first
     return lhs.createdAt < rhs.createdAt
   }
@@ -187,13 +189,13 @@ extension ParsingTask: Comparable {
 
 // MARK: - Error Handling
 
-extension ParsingTaskState {
-  public var error: Error? {
+public extension ParsingTaskState {
+  var error: Error? {
     guard case .failed(let error, _) = self else { return nil }
     return error
   }
-  
-  public var result: ParsingResult? {
+
+  var result: ParsingResult? {
     guard case .completed(let result) = self else { return nil }
     return result
   }

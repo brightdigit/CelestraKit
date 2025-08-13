@@ -16,7 +16,7 @@ public struct ParsingMetrics: Sendable, Codable {
   public let networkLatency: TimeInterval?
   public let memoryUsed: Int?
   public let cpuTime: TimeInterval?
-  
+
   public init(
     duration: TimeInterval,
     bytesProcessed: Int,
@@ -34,7 +34,7 @@ public struct ParsingMetrics: Sendable, Codable {
     self.memoryUsed = memoryUsed
     self.cpuTime = cpuTime
   }
-  
+
   /// Create metrics from successful parsing operation
   public static func success(
     startTime: Date,
@@ -52,7 +52,7 @@ public struct ParsingMetrics: Sendable, Codable {
       networkLatency: networkLatency
     )
   }
-  
+
   /// Create metrics from failed parsing operation
   public static func failure(
     startTime: Date,
@@ -75,7 +75,7 @@ public enum ParsingResult: Sendable {
   case success(ParsedFeed, metrics: ParsingMetrics)
   case failure(Error, metrics: ParsingMetrics)
   case cancelled(metrics: ParsingMetrics?)
-  
+
   public var metrics: ParsingMetrics? {
     switch self {
     case .success(_, let metrics), .failure(_, let metrics):
@@ -84,32 +84,32 @@ public enum ParsingResult: Sendable {
       return metrics
     }
   }
-  
+
   public var isSuccess: Bool {
     if case .success = self { return true }
     return false
   }
-  
+
   public var feed: ParsedFeed? {
     guard case .success(let feed, _) = self else { return nil }
     return feed
   }
-  
+
   public var error: Error? {
     guard case .failure(let error, _) = self else { return nil }
     return error
   }
-  
+
   /// Duration of the parsing operation
   public var duration: TimeInterval? {
     metrics?.duration
   }
-  
+
   /// Number of bytes processed during parsing
   public var bytesProcessed: Int? {
     metrics?.bytesProcessed
   }
-  
+
   /// Whether this result came from cache
   public var wasCacheHit: Bool {
     metrics?.cacheHit ?? false
@@ -123,7 +123,7 @@ public struct ParsingProgress: Sendable {
   public let phase: ParsingPhase
   public let progress: Double  // 0.0 to 1.0
   public let message: String?
-  
+
   public init(
     taskId: UUID,
     url: URL,
@@ -141,14 +141,14 @@ public struct ParsingProgress: Sendable {
 
 /// Phases of parsing operation for progress tracking
 public enum ParsingPhase: String, Sendable, CaseIterable {
-  case queued = "queued"
-  case fetching = "fetching"
-  case parsing = "parsing"
-  case caching = "caching"
-  case completed = "completed"
-  case failed = "failed"
-  case cancelled = "cancelled"
-  
+  case queued
+  case fetching
+  case parsing
+  case caching
+  case completed
+  case failed
+  case cancelled
+
   public var displayName: String {
     switch self {
     case .queued: return "Queued"
@@ -160,7 +160,7 @@ public enum ParsingPhase: String, Sendable, CaseIterable {
     case .cancelled: return "Cancelled"
     }
   }
-  
+
   public var isTerminal: Bool {
     switch self {
     case .completed, .failed, .cancelled:
@@ -169,7 +169,7 @@ public enum ParsingPhase: String, Sendable, CaseIterable {
       return false
     }
   }
-  
+
   public var progressWeight: Double {
     switch self {
     case .queued: return 0.0
@@ -189,7 +189,7 @@ public struct BatchParsingResult: Sendable {
   public let startTime: Date
   public let endTime: Date
   public let batchId: UUID
-  
+
   public init(
     results: [URL: ParsingResult],
     startTime: Date,
@@ -202,25 +202,25 @@ public struct BatchParsingResult: Sendable {
     self.endTime = endTime
     self.batchId = batchId
   }
-  
+
   public var successCount: Int {
     results.values.filter(\.isSuccess).count
   }
-  
+
   public var failureCount: Int {
     results.count - successCount
   }
-  
+
   public var totalBytesProcessed: Int {
     results.values.compactMap { $0.bytesProcessed }.reduce(0, +)
   }
-  
+
   public var averageDuration: TimeInterval? {
     let durations = results.values.compactMap { $0.duration }
     guard !durations.isEmpty else { return nil }
     return durations.reduce(0, +) / Double(durations.count)
   }
-  
+
   public var cacheHitRate: Double {
     let totalResults = results.count
     guard totalResults > 0 else { return 0.0 }
