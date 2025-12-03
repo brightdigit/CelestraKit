@@ -66,6 +66,19 @@
                     }
                   )
                 }
+
+                Divider()
+
+                #if DEBUG
+                  Button(
+                    action: {
+                      UserPreferencesService.shared.resetOnboarding()
+                    },
+                    label: {
+                      Label("Reset Onboarding (Debug)", systemImage: "arrow.counterclockwise")
+                    }
+                  )
+                #endif
               } label: {
                 Image(systemName: "line.3.horizontal.decrease.circle")
                 .symbolRenderingMode(.hierarchical)

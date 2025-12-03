@@ -8,52 +8,86 @@
 public import Foundation
 @preconcurrency import SyndiKit
 
-/// SyndiKit-based implementation of FeedParserProtocol
-/// Provides unified parsing interface with caching and network abstraction
+#if canImport(CryptoKit)
+  import CryptoKit
+#else
+  import Crypto
+#endif
+
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
+/// Simplified SyndiKit parser using URLSession directly
+/// Replaces 332 lines of HTTP/cache abstraction complexity
 public final class SyndiKitParser: @unchecked Sendable {
-  private let httpClient: HTTPClientProtocol
-  private let cache: FeedCacheProtocol
   private let synDecoder: SynDecoder
-  private let cacheConfig: FeedCacheConfig
+  #if canImport(FoundationNetworking)
+    private let session: URLSession
 
-  public init(
-    httpClient: HTTPClientProtocol = URLSessionHTTPClient(),
-    cache: FeedCacheProtocol = InMemoryFeedCache(),
-    cacheConfig: FeedCacheConfig = FeedCacheConfig()
-  ) {
-    self.httpClient = httpClient
-    self.cache = cache
-    self.synDecoder = SynDecoder()
-    self.cacheConfig = cacheConfig
-  }
+    public init() {
+      self.synDecoder = SynDecoder()
 
-  public func parse(url: URL) async throws -> ParsedFeed {
-    // Try cache first
-    if let cachedFeed = try? await cache.get(for: url) {
-      return cachedFeed
+      // Configure URLSession with built-in caching
+      let config = URLSessionConfiguration.default
+      config.requestCachePolicy = .returnCacheDataElseLoad
+      config.urlCache = URLCache(
+        memoryCapacity: 20 * 1024 * 1024,  // 20 MB memory cache
+        diskCapacity: 100 * 1024 * 1024,  // 100 MB disk cache
+        diskPath: nil
+      )
+      self.session = URLSession(configuration: config)
     }
 
-    // Fetch and parse
-    let data = try await httpClient.fetch(url: url)
-    let feedable = try synDecoder.decode(data)
+    public func parse(url: URL) async throws -> ParsedFeed {
+      // Fetch data using URLSession (with built-in caching)
+      let (data, _) = try await session.data(from: url)
 
-    // Map to ParsedFeed
-    let parsedFeed = try mapToParsedfeed(feedable, url: url)
+      // Decode using SyndiKit
+      let feedable = try synDecoder.decode(data)
 
-    // Cache the result
-    let expirationDate = Date().addingTimeInterval(cacheConfig.defaultExpirationInterval)
-    try? await cache.set(parsedFeed, for: url, expirationDate: expirationDate)
+      // Map to ParsedFeed
+      return try mapToParsedfeed(feedable, url: url)
+    }
+  #else
+    // Fallback for platforms without FoundationNetworking
+    public init() {
+      self.synDecoder = SynDecoder()
+    }
 
-    return parsedFeed
-  }
+    public func parse(url: URL) async throws -> ParsedFeed {
+      throw FeedParserError.networkError(underlying: URLError(.unsupportedURL))
+    }
+  #endif
 }
 
 // MARK: - Private Mapping Methods
 
 extension SyndiKitParser {
-  fileprivate func mapToParsedfeed(_ feedable: Feedable, url: URL) throws -> ParsedFeed {
-    // Use URL as the feed ID
-    let feedID = url
+  /// Create a deterministic UUID from a URL using SHA256
+  private func uuid(from url: URL) -> UUID {
+    // Use SHA256 for deterministic hashing (consistent across app launches)
+    let urlString = url.absoluteString
+    let hash = SHA256.hash(data: Data(urlString.utf8))
+
+    // Take first 16 bytes of hash for UUID
+    let hashBytes = Array(hash.prefix(16))
+
+    // Create UUID from deterministic hash bytes
+    let uuid = UUID(
+      uuid: (
+        hashBytes[0], hashBytes[1], hashBytes[2], hashBytes[3],
+        hashBytes[4], hashBytes[5], hashBytes[6], hashBytes[7],
+        hashBytes[8], hashBytes[9], hashBytes[10], hashBytes[11],
+        hashBytes[12], hashBytes[13], hashBytes[14], hashBytes[15]
+      ))
+
+    return uuid
+  }
+
+  fileprivate func mapToParsedfeed(_ feedable: any Feedable, url: URL) throws -> ParsedFeed {
+    // Create a deterministic UUID from the feed URL
+    let feedID = uuid(from: url)
     let articles = try feedable.children.map { entryable in
       try mapToArticle(entryable, feedID: feedID)
     }
@@ -92,7 +126,7 @@ extension SyndiKitParser {
     )
   }
 
-  fileprivate func mapToArticle(_ entryable: Entryable, feedID: URL) throws -> Article {
+  fileprivate func mapToArticle(_ entryable: any Entryable, feedID: UUID) throws -> Article {
     // Combine authors into a single string for the existing Article model
     let authorString = entryable.authors.map(\.name).joined(separator: ", ")
 
@@ -123,7 +157,7 @@ extension SyndiKitParser {
   }
 
   private func createArticle(
-    feedID: URL,
+    feedID: UUID,
     title: String,
     excerpt: String?,
     content: String?,
@@ -143,7 +177,7 @@ extension SyndiKitParser {
     }
   }
 
-  fileprivate func detectFeedFormat(_ feedable: Feedable) -> FeedFormat {
+  fileprivate func detectFeedFormat(_ feedable: any Feedable) -> FeedFormat {
     // Check if it's a YouTube channel
     if feedable.youtubeChannelID != nil {
       return .youTube

@@ -5,18 +5,21 @@
 //  Created for Celestra on 2025-08-13.
 //
 
-public import Foundation
+import Foundation
 
 /// Errors that can occur during feed parsing operations
 public enum FeedParserError: Error, Sendable {
+  case invalidURL
   case invalidArticleURL
   case missingRequiredData
-  case parsingFailed(underlying: Error)
-  case networkError(underlying: Error)
-  case cacheError(underlying: Error)
+  case parsingFailed(underlying: any Error)
+  case networkError(underlying: any Error)
+  case cacheError(underlying: any Error)
 
   public var localizedDescription: String {
     switch self {
+    case .invalidURL:
+      return "Invalid or missing feed URL"
     case .invalidArticleURL:
       return "Invalid or missing article URL"
     case .missingRequiredData:

@@ -26,96 +26,27 @@ public protocol FeedDiscoveryProtocol: Sendable {
   func detectFormat(for url: URL) async throws -> FeedFormat
 }
 
-/// Represents a discovered feed with metadata
-public struct DiscoveredFeed: Sendable, Codable, Equatable {
-  public let url: URL
-  public let title: String?
-  public let type: String?
-  public let format: FeedFormat?
-
-  public init(url: URL, title: String? = nil, type: String? = nil, format: FeedFormat? = nil) {
-    self.url = url
-    self.title = title
-    self.type = type
-    self.format = format
-  }
-}
-
-/// Errors that can occur during feed discovery
-public enum FeedDiscoveryError: Error, Sendable {
-  case invalidURL
-  case noFeedsFound
-  case htmlParsingFailed
-  case networkError(underlying: Error)
-  case rateLimitExceeded
-  case formatDetectionFailed
-
-  public var localizedDescription: String {
-    switch self {
-    case .invalidURL:
-      return "Invalid URL provided"
-    case .noFeedsFound:
-      return "No feeds discovered at the given URL"
-    case .htmlParsingFailed:
-      return "Failed to parse HTML content"
-    case .networkError(let underlying):
-      return "Network error: \(underlying.localizedDescription)"
-    case .rateLimitExceeded:
-      return "Rate limit exceeded for feed discovery"
-    case .formatDetectionFailed:
-      return "Could not detect feed format"
-    }
-  }
-}
-
-/// Configuration for feed discovery operations
-public struct FeedDiscoveryConfig: Sendable {
-  public let maxRedirects: Int
-  public let timeout: TimeInterval
-  public let userAgent: String
-  public let rateLimitDelay: TimeInterval
-
-  public init(
-    maxRedirects: Int = 5,
-    timeout: TimeInterval = 30,
-    userAgent: String = "Celestra/1.0 (+https://celestra.app)",
-    rateLimitDelay: TimeInterval = 1.0
-  ) {
-    self.maxRedirects = maxRedirects
-    self.timeout = timeout
-    self.userAgent = userAgent
-    self.rateLimitDelay = rateLimitDelay
-  }
-}
-
 /// Intelligent feed discovery service that can auto-detect feeds from websites
 public final class FeedDiscoveryService: FeedDiscoveryProtocol, @unchecked Sendable {
-  private let httpClient: HTTPClientProtocol
-  private let cache: FeedCacheProtocol?
+  private let httpClient: any HTTPClientProtocol
   private let config: FeedDiscoveryConfig
-  private let rateLimiter: RateLimiter
 
   public init(
-    httpClient: HTTPClientProtocol = URLSessionHTTPClient(),
-    cache: FeedCacheProtocol? = InMemoryFeedCache(),
+    httpClient: any HTTPClientProtocol = URLSessionHTTPClient(),
     config: FeedDiscoveryConfig = FeedDiscoveryConfig()
   ) {
     self.httpClient = httpClient
-    self.cache = cache
     self.config = config
-    self.rateLimiter = RateLimiter(delay: config.rateLimitDelay)
   }
 
   public func discoverFeeds(from url: URL) async throws -> [DiscoveredFeed] {
-    try await rateLimiter.execute {
-      // First, check if the URL itself is a feed
-      if let directFeed = try await checkDirectFeed(url: url) {
-        return [directFeed]
-      }
-
-      // If not a direct feed, parse HTML to discover feeds
-      return try await discoverFeedsFromHTML(url: url)
+    // First, check if the URL itself is a feed
+    if let directFeed = try await checkDirectFeed(url: url) {
+      return [directFeed]
     }
+
+    // If not a direct feed, parse HTML to discover feeds
+    return try await discoverFeedsFromHTML(url: url)
   }
 
   public func validateFeedURL(_ url: URL) async throws -> Bool {
@@ -157,15 +88,11 @@ extension FeedDiscoveryService {
     guard let htmlString = String(data: data, encoding: .utf8) else {
       throw FeedDiscoveryError.htmlParsingFailed
     }
-
     var discoveredFeeds: [DiscoveredFeed] = []
-
     // Parse HTML for feed links
     discoveredFeeds.append(contentsOf: parseFeedLinksFromHTML(htmlString, baseURL: url))
-
     // Try common feed URL patterns
     discoveredFeeds.append(contentsOf: await tryCommonFeedPatterns(baseURL: url))
-
     // Remove duplicates and validate
     let uniqueFeeds = Array(Set(discoveredFeeds.map(\.url)))
       .compactMap { feedURL in
@@ -181,7 +108,6 @@ extension FeedDiscoveryService {
 
   private func parseFeedLinksFromHTML(_ html: String, baseURL: URL) -> [DiscoveredFeed] {
     var feeds: [DiscoveredFeed] = []
-
     // Use NSRegularExpression for HTML parsing
     do {
       let pattern = """
@@ -365,29 +291,5 @@ extension FeedDiscoveryService {
     }
 
     return nil
-  }
-}
-
-// MARK: - Rate Limiter
-
-private actor RateLimiter {
-  private var lastRequestTime: Date = .distantPast
-  private let delay: TimeInterval
-
-  init(delay: TimeInterval) {
-    self.delay = delay
-  }
-
-  func execute<T>(_ operation: () async throws -> T) async throws -> T {
-    let now = Date()
-    let timeSinceLastRequest = now.timeIntervalSince(lastRequestTime)
-
-    if timeSinceLastRequest < delay {
-      let waitTime = delay - timeSinceLastRequest
-      try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
-    }
-
-    lastRequestTime = Date()
-    return try await operation()
   }
 }
