@@ -4,8 +4,8 @@
 // Created for Celestra on 2025-12-06.
 //
 
-import Crypto
-import Foundation
+public import Crypto
+public import Foundation
 
 /// Represents an RSS article in CloudKit's public database
 /// Shared across all users for efficient content distribution
@@ -114,8 +114,10 @@ public struct Article: Sendable, Codable, Hashable, Identifiable {
     self.expiresAt = fetchedAt.addingTimeInterval(TimeInterval(ttlDays * 24 * 60 * 60))
     self.contentHash = Self.calculateContentHash(title: title, url: url, guid: guid)
     self.wordCount = wordCount ?? Self.calculateWordCount(from: contentText)
-    self.estimatedReadingTime = estimatedReadingTime ?? Self.estimateReadingTime(
-      wordCount: self.wordCount)
+    self.estimatedReadingTime =
+      estimatedReadingTime
+      ?? Self.estimateReadingTime(
+        wordCount: self.wordCount)
     self.language = language
     self.tags = tags
   }
@@ -136,7 +138,8 @@ public struct Article: Sendable, Codable, Hashable, Identifiable {
     // Simple HTML tag removal (use proper HTML parser in production)
     let withoutTags = html.replacingOccurrences(
       of: "<[^>]+>", with: "", options: .regularExpression)
-    let decoded = withoutTags
+    let decoded =
+      withoutTags
       .replacingOccurrences(of: "&nbsp;", with: " ")
       .replacingOccurrences(of: "&amp;", with: "&")
       .replacingOccurrences(of: "&lt;", with: "<")

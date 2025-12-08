@@ -8,8 +8,8 @@
 /// - Cross-platform DTOs for Linux compatibility
 /// - Shared utilities and helpers
 public struct CelestraKit {
-    /// Current version of CelestraKit
-    public static let version = "1.0.0"
+  /// Current version of CelestraKit
+  public static let version = "1.0.0"
 
-    public init() {}
+  public init() {}
 }

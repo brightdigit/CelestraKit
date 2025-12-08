@@ -4,7 +4,7 @@
 // Created for Celestra on 2025-12-06.
 //
 
-import Foundation
+public import Foundation
 
 /// Represents an RSS feed in CloudKit's public database
 /// Shared across all users for efficient content distribution
@@ -154,7 +154,7 @@ public struct Feed: Sendable, Codable, Hashable, Identifiable {
 
 // MARK: - Helpers
 
-extension PublicFeed {
+extension Feed {
   /// Success rate for feed fetching (0.0 - 1.0)
   public var successRate: Double {
     guard totalAttempts > 0 else { return 0.0 }
