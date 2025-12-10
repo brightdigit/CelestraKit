@@ -2,9 +2,9 @@
   "originHash" : "67ad400628d4a624266ca1a897f50beb4de8e0d3f2b03f9449639db5ff5baee3",
   "pins" : [
     {
-      "identity" : "swift-asn1",
+      "identity" : "syndikit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-asn1.git",
+      "location" : "https://github.com/brightdigit/SyndiKit.git",
       "state" : {
         "revision" : "810496cf121e525d660cd0ea89a758740476b85f",
         "version" : "1.5.1"
