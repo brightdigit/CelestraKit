@@ -1,249 +1,384 @@
 # CloudKit Integration
 
-Learn how CelestraKit models map to CloudKit's public database.
+Comprehensive guide to integrating CelestraKit with CloudKit in production.
 
 ## Overview
 
-CelestraKit models are designed to work seamlessly with CloudKit's public database, enabling data sharing across all Celestra users. Both ``Feed`` and ``Article`` models include CloudKit-specific fields for optimistic locking and record management.
+CelestraKit models are designed for CloudKit's **public database**, enabling efficient content sharing across all users without requiring authentication.
 
-## Public Database Architecture
+## CloudKit Setup
 
-The Celestra ecosystem uses CloudKit's **public database** to share:
-- **Feed metadata**: Shared catalog of RSS feeds with quality metrics
-- **Article content**: Cached RSS articles with TTL-based expiration
+### 1. Enable CloudKit Capability
 
-This allows:
-- **Client apps** to read shared feed catalog and cached articles
-- **Server-side tools** to update feed metrics and populate article cache
+In Xcode:
+1. Select your target
+2. Go to "Signing & Capabilities"
+3. Add "CloudKit" capability
+4. Create/select CloudKit container
 
-## CloudKit Fields
-
-### Record Management
-
-Both models include CloudKit record management fields:
+### 2. Configure Container
 
 ```swift
-// Feed and Article both include:
-public var recordName: String           // CloudKit record identifier
-public var recordChangeTag: String?     // For optimistic locking
+import CloudKit
+
+let container = CKContainer(identifier: "iCloud.com.example.celestra")
+let publicDatabase = container.publicCloudDatabase
 ```
 
-#### Optimistic Locking
+### 3. Define Record Types
 
-CloudKit uses `recordChangeTag` to prevent conflicting updates:
+Create these record types in CloudKit Dashboard:
 
-1. Fetch record with current `recordChangeTag`
-2. Modify local copy
-3. Save with original `recordChangeTag`
-4. CloudKit rejects if tag doesn't match (record was modified)
+**Feed Record Type** - Type name: `Feed`
 
-Example:
+Required fields:
+- `feedURL` (String, indexed, queryable)
+- `title` (String, indexed)
+- `qualityScore` (Int64, indexed)
+- `isVerified` (Int64)
+- `isFeatured` (Int64)
+- `isActive` (Int64)
+- `totalAttempts` (Int64)
+- `successfulAttempts` (Int64)
+- `failureCount` (Int64)
+- `subscriberCount` (Int64)
+- `addedAt` (Date/Time, indexed)
+- `tags` (String List)
+
+Optional fields:
+- `description`, `category`, `imageURL`, `siteURL`, `language`
+- `lastVerified`, `updateFrequency`, `lastAttempted`
+- `etag`, `lastModified`, `lastFailureReason`, `minUpdateInterval`
+
+**Article Record Type** - Type name: `Article`
+
+Required fields:
+- `feedRecordName` (String, indexed, queryable)
+- `guid` (String, indexed)
+- `title` (String, indexed)
+- `url` (String, indexed)
+- `contentHash` (String, indexed)
+- `fetchedAt` (Date/Time, indexed)
+- `expiresAt` (Date/Time, indexed)
+
+Optional fields:
+- `excerpt`, `content`, `contentText`, `author`, `imageURL`
+- `publishedDate`, `wordCount`, `estimatedReadingTime`
+- `language`, `tags`
+
+## CRUD Operations
+
+### Create
 
 ```swift
-// Server-side: Update feed metrics
-var feed = fetchedFeed
-feed.totalAttempts += 1
-feed.successfulAttempts += 1
+func saveFeed(_ feed: Feed) async throws -> Feed {
+    let record = CKRecord(recordType: "Feed")
 
-// Save with recordChangeTag - CloudKit ensures no conflicts
-// If another process updated the feed, save fails with conflict error
+    // Map Feed to CKRecord
+    record["feedURL"] = feed.feedURL
+    record["title"] = feed.title
+    record["qualityScore"] = feed.qualityScore as CKRecordValue
+    record["isVerified"] = feed.isVerified ? 1 : 0
+    record["isFeatured"] = feed.isFeatured ? 1 : 0
+    // ... map other fields
+
+    let savedRecord = try await publicDatabase.save(record)
+    return try mapToFeed(savedRecord)
+}
 ```
 
-### Feed Model Mapping
-
-The ``Feed`` model maps to CloudKit records with these characteristics:
-
-**Record Type**: `Feed`
-**Unique Identifier**: `feedURL` (enforced via record name)
-
-Key fields:
-- **Identity**: `recordName`, `feedURL`
-- **Metadata**: `title`, `description`, `category`, `imageURL`, `siteURL`
-- **Quality**: `qualityScore`, `isVerified`, `isFeatured`, `isHealthy` (computed)
-- **Server Metrics**: `totalAttempts`, `successfulAttempts`, `failureCount`
-- **HTTP Caching**: `etag`, `lastModified`
-
-### Article Model Mapping
-
-The ``Article`` model maps to CloudKit records with these characteristics:
-
-**Record Type**: `Article`
-**Unique Identifier**: Composite of `feedRecordName` + `guid`
-
-Key fields:
-- **Identity**: `recordName`, `feedRecordName`, `guid`
-- **Content**: `title`, `content`, `contentText`, `excerpt`
-- **Caching**: `fetchedAt`, `expiresAt`, `contentHash`, `isExpired` (computed)
-- **Metadata**: `author`, `publishedDate`, `wordCount`, `estimatedReadingTime`
-
-## Data Flow Patterns
-
-### Server-Side Updates
-
-Server tools (like CelestraCloud) update the public database:
+### Read
 
 ```swift
-// 1. Fetch feed with RSS parser
-let parsedFeed = try await fetchAndParseFeed(url: feedURL)
+func fetchFeed(recordName: String) async throws -> Feed {
+    let recordID = CKRecord.ID(recordName: recordName)
+    let record = try await publicDatabase.record(for: recordID)
+    return try mapToFeed(record)
+}
+```
 
-// 2. Update Feed record metrics
-var feed = existingFeed
-feed.totalAttempts += 1
-feed.successfulAttempts += 1
-feed.lastAttempted = Date()
-feed.etag = response.etag
+### Update (with Optimistic Locking)
 
-// 3. Save to CloudKit with optimistic locking
-// CloudKit uses recordChangeTag to prevent conflicts
+```swift
+func updateFeed(_ feed: Feed) async throws -> Feed {
+    guard let recordName = feed.recordName,
+          let changeTag = feed.recordChangeTag else {
+        throw CloudKitError.missingRecordInfo
+    }
 
-// 4. Create/update Article records
-for item in parsedFeed.items {
-    let article = Article(
-        feedRecordName: feed.recordName,
-        guid: item.id,
-        title: item.title,
-        content: item.content,
-        url: item.link,
-        ttl: 2_592_000 // 30 days
+    let recordID = CKRecord.ID(recordName: recordName)
+
+    // Fetch current record
+    let record = try await publicDatabase.record(for: recordID)
+
+    // Check for conflicts
+    guard record.recordChangeTag == changeTag else {
+        throw CloudKitError.conflictDetected
+    }
+
+    // Update fields
+    record["title"] = feed.title
+    record["qualityScore"] = feed.qualityScore as CKRecordValue
+    // ... update other fields
+
+    // Save with change tag
+    let savedRecord = try await publicDatabase.save(record)
+    return try mapToFeed(savedRecord)
+}
+```
+
+### Delete
+
+```swift
+func deleteFeed(recordName: String) async throws {
+    let recordID = CKRecord.ID(recordName: recordName)
+    try await publicDatabase.deleteRecord(withID: recordID)
+}
+```
+
+## Querying
+
+### Query Feeds by Category
+
+```swift
+func fetchFeeds(category: String) async throws -> [Feed] {
+    let predicate = NSPredicate(format: "category == %@", category)
+    let query = CKQuery(recordType: "Feed", predicate: predicate)
+    query.sortDescriptors = [
+        NSSortDescriptor(key: "qualityScore", ascending: false)
+    ]
+
+    let (results, _) = try await publicDatabase.records(matching: query)
+
+    return try results.compactMap { try $0.1.get() }
+        .compactMap { try? mapToFeed($0) }
+}
+```
+
+### Query Articles by Feed
+
+```swift
+func fetchArticles(feedRecordName: String) async throws -> [Article] {
+    let predicate = NSPredicate(
+        format: "feedRecordName == %@",
+        feedRecordName
     )
-    // Save article to CloudKit
+    let query = CKQuery(recordType: "Article", predicate: predicate)
+    query.sortDescriptors = [
+        NSSortDescriptor(key: "publishedDate", ascending: false)
+    ]
+
+    let (results, _) = try await publicDatabase.records(matching: query)
+
+    return try results.compactMap { try $0.1.get() }
+        .compactMap { try? mapToArticle($0) }
 }
 ```
 
-### Client-Side Reads
-
-iOS apps read from the public database:
+### Query Non-Expired Articles
 
 ```swift
-// 1. Query feeds by category
-let feeds = try await fetchFeeds(category: "Technology")
+func fetchFreshArticles(feedRecordName: String) async throws -> [Article] {
+    let predicate = NSPredicate(
+        format: "feedRecordName == %@ AND expiresAt > %@",
+        feedRecordName,
+        Date() as NSDate
+    )
+    let query = CKQuery(recordType: "Article", predicate: predicate)
 
-// 2. Check feed health
-let healthyFeeds = feeds.filter { $0.isHealthy }
+    let (results, _) = try await publicDatabase.records(matching: query)
 
-// 3. Fetch recent articles for feed
-let articles = try await fetchArticles(feedRecordName: feed.recordName)
-
-// 4. Filter unexpired articles
-let freshArticles = articles.filter { !$0.isExpired }
-```
-
-## Content Deduplication
-
-Articles use ``Article/calculateContentHash(title:url:guid:)`` for deduplication:
-
-```swift
-// Composite key: title|url|guid
-let hash = Article.calculateContentHash(
-    title: "Swift Concurrency",
-    url: "https://example.com/article",
-    guid: "abc123"
-)
-
-// Use hash to detect duplicates before saving
-let duplicate = existingArticles.contains { $0.contentHash == hash }
-```
-
-This prevents duplicate articles when:
-- Feed includes same article with different timestamps
-- Multiple feeds share content (canonical URLs)
-- Feed updates article content
-
-## Caching Strategy
-
-### TTL-Based Expiration
-
-Articles use Time-To-Live (TTL) based caching:
-
-```swift
-// Default: 30 days (2,592,000 seconds)
-let article = Article(
-    // ... other fields
-    ttl: 2_592_000
-)
-
-// Automatic expiration check
-if article.isExpired {
-    // Article past expiresAt - should be refreshed
+    return try results.compactMap { try $0.1.get() }
+        .compactMap { try? mapToArticle($0) }
 }
 ```
 
-### Feed-Specific TTL
+## Concurrency-Safe Operations
 
-Feeds can specify custom update intervals:
-
-```swift
-// RSS <ttl> tag or calculated from update frequency
-let feed = Feed(
-    // ...
-    updateFrequency: 3600, // Hourly updates
-    minUpdateInterval: 900  // Don't check more than every 15 min
-)
-```
-
-## Query Patterns
-
-### Finding Feeds
+### Using Actors
 
 ```swift
-// By category
-let techFeeds = feeds.filter { $0.category == "Technology" }
+actor FeedManager {
+    private let database: CKDatabase
+    private var cache: [String: Feed] = [:]
 
-// By health status
-let healthyFeeds = feeds.filter { $0.isHealthy }
+    init(database: CKDatabase) {
+        self.database = database
+    }
 
-// By quality score
-let qualityFeeds = feeds.filter { $0.qualityScore >= 70 }
+    func getFeed(recordName: String) async throws -> Feed {
+        // Check cache
+        if let cached = cache[recordName] {
+            return cached
+        }
 
-// Featured/verified
-let featuredFeeds = feeds.filter { $0.isFeatured || $0.isVerified }
-```
+        // Fetch from CloudKit
+        let recordID = CKRecord.ID(recordName: recordName)
+        let record = try await database.record(for: recordID)
+        let feed = try mapToFeed(record)
 
-### Finding Articles
+        // Cache result
+        cache[recordName] = feed
 
-```swift
-// By feed
-let feedArticles = articles.filter { $0.feedRecordName == feed.recordName }
+        return feed
+    }
 
-// Fresh articles only
-let freshArticles = articles.filter { !$0.isExpired }
-
-// Recent articles
-let recentArticles = articles
-    .sorted { $0.publishedDate > $1.publishedDate }
-    .prefix(20)
+    func clearCache() {
+        cache.removeAll()
+    }
+}
 ```
 
 ## Best Practices
 
-### On the Server
+### 1. Batch Operations
 
-- **Always use optimistic locking** via `recordChangeTag`
-- **Update feed metrics** after each fetch attempt
-- **Respect HTTP caching** headers (ETag, Last-Modified)
-- **Set appropriate TTL** based on feed update frequency
-- **Use content hashing** to prevent duplicates
+```swift
+func saveFeeds(_ feeds: [Feed]) async throws -> [Feed] {
+    let records = feeds.map { feed -> CKRecord in
+        let record = CKRecord(recordType: "Feed")
+        record["feedURL"] = feed.feedURL
+        record["title"] = feed.title
+        // ... map other fields
+        return record
+    }
 
-### On the Client
+    let savedRecords = try await publicDatabase.modifyRecords(
+        saving: records,
+        deleting: []
+    ).saveResults.compactMap { try? $0.value.get() }
 
-- **Filter expired articles** before displaying
-- **Cache CloudKit queries** to reduce database reads
-- **Respect feed quality scores** when recommending content
-- **Monitor `isHealthy`** to detect broken feeds
-- **Use `recordChangeTag`** when modifying records
+    return try savedRecords.compactMap { try? mapToFeed($0) }
+}
+```
 
-## Platform Considerations
+### 2. Handle Conflicts
 
-CelestraKit is designed for both CloudKit-enabled platforms and server environments:
+```swift
+func handleConflict(
+    clientFeed: Feed,
+    serverRecord: CKRecord
+) throws -> Feed {
+    // Server wins for most fields
+    var mergedFeed = try mapToFeed(serverRecord)
 
-- **Apple Platforms** (iOS, macOS, etc.): Full CloudKit integration available
-- **Linux/Server**: Models work as DTOs with Codable conformance
+    // Client wins for user-specific data (if any)
+    // (In this case, all fields are server-managed)
 
-This enables server-side feed processing tools to populate CloudKit data that client apps consume.
+    return mergedFeed
+}
+```
+
+### 3. Error Handling
+
+```swift
+enum CloudKitError: Error {
+    case missingRecordInfo
+    case conflictDetected
+    case networkFailure
+}
+
+func fetchWithRetry<T>(
+    _ operation: @Sendable () async throws -> T,
+    maxRetries: Int = 3
+) async throws -> T {
+    var lastError: Error?
+
+    for attempt in 0..<maxRetries {
+        do {
+            return try await operation()
+        } catch {
+            lastError = error
+
+            // Exponential backoff
+            let delay = pow(2.0, Double(attempt))
+            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
+    }
+
+    throw lastError ?? CloudKitError.networkFailure
+}
+```
+
+## Mapping Helpers
+
+### CKRecord to Feed
+
+```swift
+func mapToFeed(_ record: CKRecord) throws -> Feed {
+    guard let feedURL = record["feedURL"] as? String,
+          let title = record["title"] as? String else {
+        throw CloudKitError.missingRecordInfo
+    }
+
+    return Feed(
+        recordName: record.recordID.recordName,
+        recordChangeTag: record.recordChangeTag,
+        feedURL: feedURL,
+        title: title,
+        description: record["description"] as? String,
+        category: record["category"] as? String,
+        imageURL: record["imageURL"] as? String,
+        siteURL: record["siteURL"] as? String,
+        language: record["language"] as? String,
+        isFeatured: (record["isFeatured"] as? Int64) == 1,
+        isVerified: (record["isVerified"] as? Int64) == 1,
+        qualityScore: record["qualityScore"] as? Int ?? 50,
+        subscriberCount: record["subscriberCount"] as? Int64 ?? 0,
+        addedAt: record["addedAt"] as? Date ?? Date(),
+        lastVerified: record["lastVerified"] as? Date,
+        updateFrequency: record["updateFrequency"] as? Double,
+        tags: record["tags"] as? [String] ?? [],
+        totalAttempts: record["totalAttempts"] as? Int64 ?? 0,
+        successfulAttempts: record["successfulAttempts"] as? Int64 ?? 0,
+        lastAttempted: record["lastAttempted"] as? Date,
+        isActive: (record["isActive"] as? Int64) == 1,
+        etag: record["etag"] as? String,
+        lastModified: record["lastModified"] as? String,
+        failureCount: record["failureCount"] as? Int64 ?? 0,
+        lastFailureReason: record["lastFailureReason"] as? String,
+        minUpdateInterval: record["minUpdateInterval"] as? Double
+    )
+}
+```
+
+### CKRecord to Article
+
+```swift
+func mapToArticle(_ record: CKRecord) throws -> Article {
+    guard let feedRecordName = record["feedRecordName"] as? String,
+          let guid = record["guid"] as? String,
+          let title = record["title"] as? String,
+          let url = record["url"] as? String else {
+        throw CloudKitError.missingRecordInfo
+    }
+
+    return Article(
+        recordName: record.recordID.recordName,
+        recordChangeTag: record.recordChangeTag,
+        feedRecordName: feedRecordName,
+        guid: guid,
+        title: title,
+        excerpt: record["excerpt"] as? String,
+        content: record["content"] as? String,
+        contentText: record["contentText"] as? String,
+        author: record["author"] as? String,
+        url: url,
+        imageURL: record["imageURL"] as? String,
+        publishedDate: record["publishedDate"] as? Date,
+        fetchedAt: record["fetchedAt"] as? Date ?? Date(),
+        ttlDays: 30, // Will be overridden by expiresAt
+        wordCount: record["wordCount"] as? Int,
+        estimatedReadingTime: record["estimatedReadingTime"] as? Int,
+        language: record["language"] as? String,
+        tags: record["tags"] as? [String] ?? []
+    )
+}
+```
 
 ## See Also
 
+- <doc:ModelArchitecture>
+- <doc:ConcurrencyPatterns>
 - ``Feed``
 - ``Article``
-- <doc:RateLimiting>
-- <doc:WebEtiquette>

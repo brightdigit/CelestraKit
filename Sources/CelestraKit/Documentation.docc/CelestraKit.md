@@ -4,56 +4,61 @@ Shared CloudKit models and utilities for the Celestra RSS reader ecosystem.
 
 ## Overview
 
-CelestraKit is a Swift package that provides shared CloudKit data models for the Celestra RSS reader platform. It defines the public database schema used by both the iOS application and server-side feed processing tools, enabling seamless data synchronization and sharing across the Celestra ecosystem.
+CelestraKit provides a robust, type-safe foundation for building RSS readers on Apple platforms using CloudKit's public database. Built with Swift 6.2 and strict concurrency checking, it offers:
+
+- **CloudKit Public Database Models** for feeds and articles
+- **Cross-Platform Support** across all Apple platforms (iOS 26+, macOS 26+, watchOS 26+, tvOS 26+, visionOS 26+)
+- **Server-Side Metrics** for feed health monitoring
+- **Intelligent Caching** with TTL-based expiration
+- **Content Deduplication** using composite key hashing
+- **Web Etiquette Services** for responsible feed fetching
+- **Modern Swift**: Built with Swift 6.2, strict concurrency, and modern language features
+
+### Architecture
+
+CelestraKit uses CloudKit's public database to share RSS content across all users, reducing redundant network requests and improving performance. The package consists of two core models (``Feed`` and ``Article``) and two web etiquette services (``RateLimiter`` and ``RobotsTxtService``).
 
 The package is designed for cross-platform compatibility, with CloudKit-specific code available on Apple platforms and platform-agnostic DTOs for Linux/server environments.
 
-### Key Features
+### Key Concepts
 
-- **CloudKit Public Database Models**: Shared data structures for feeds and articles
-- **Cross-Platform Compatibility**: Works on all Apple platforms with CloudKit support
-- **Server-Side Metrics**: Track feed health, success rates, and fetch statistics
-- **Content Deduplication**: SHA-256 hashing for intelligent article deduplication
-- **TTL-Based Caching**: Automatic expiration tracking for article freshness
-- **Quality Indicators**: Feed quality scoring and health monitoring
-- **Reading Time Estimation**: Automatic word count and reading time calculation
-- **Web Etiquette Services**: Rate limiting and robots.txt compliance
-- **Modern Swift**: Built with Swift 6.2, strict concurrency, and modern language features
+- **Feed**: RSS feed metadata with server-side health metrics and quality scores
+- **Article**: Cached RSS articles with TTL-based expiration and automatic content processing
+- **RateLimiter**: Actor-based rate limiting to prevent server overload
+- **RobotsTxtService**: Automated robots.txt compliance for ethical web crawling
+
+### Use Cases
+
+CelestraKit is designed for:
+- **RSS reader applications** that share content across users
+- **Feed aggregation services** with centralized processing
+- **Server-side feed processors** that populate CloudKit for client apps
+- **Cross-platform RSS solutions** requiring consistent data models
 
 ## Topics
 
-### Getting Started
+### Essentials
 
 - <doc:GettingStarted>
+- <doc:ModelArchitecture>
 - <doc:CloudKitIntegration>
 
-### Data Models
+### Core Models
 
 - ``Feed``
 - ``Article``
 
-### Services
+### Web Etiquette Services
 
 - ``RateLimiter``
 - ``RobotsTxtService``
 - ``RobotsTxtService/RobotsRules``
 
-### Guides
+### Advanced Guides
 
-- <doc:RateLimiting>
+- <doc:FeedModelGuide>
+- <doc:ArticleModelGuide>
+- <doc:ConcurrencyPatterns>
+- <doc:CachingAndDeduplication>
 - <doc:WebEtiquette>
-
-## Platform Support
-
-CelestraKit requires:
-- iOS 26.0+
-- macOS 26.0+
-- visionOS 26.0+
-- watchOS 26.0+
-- tvOS 26.0+
-- macCatalyst 26.0+
-
-## See Also
-
-- [GitHub Repository](https://github.com/brightdigit/CelestraKit)
-- [SyndiKit RSS Parser](https://github.com/brightdigit/SyndiKit)
+- <doc:CrossPlatformConsiderations>

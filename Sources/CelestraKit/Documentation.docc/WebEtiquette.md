@@ -1,340 +1,214 @@
-# Web Etiquette and robots.txt Compliance
+# Web Etiquette
 
-Learn how to respect website policies using RobotsTxtService.
+Responsible RSS feed fetching with rate limiting and robots.txt compliance.
 
 ## Overview
 
-The ``RobotsTxtService`` actor helps your feed reader respect website policies by fetching and parsing `robots.txt` files. This ensures you're a good web citizen and follow the Robots Exclusion Protocol.
+CelestraKit provides two services for **responsible web crawling**:
+- ``RateLimiter``: Prevent server overload with configurable delays
+- ``RobotsTxtService``: Respect robots.txt policies
 
-## What is robots.txt?
+## Rate Limiting
 
-`robots.txt` is a standard file websites use to communicate crawling policies:
+### Why Rate Limit?
 
-- **Allowed/Disallowed paths**: Which URLs can be accessed
-- **Crawl delays**: How long to wait between requests
-- **User-agent specific rules**: Different policies for different bots
+Rate limiting prevents:
+- **Server overload**: Too many requests in short time
+- **IP bans**: Servers may block aggressive clients
+- **Poor user experience**: Network congestion
 
-Example `robots.txt`:
-
-```
-User-agent: *
-Disallow: /private/
-Crawl-delay: 10
-
-User-agent: CelestraBot
-Allow: /
-Crawl-delay: 5
-```
-
-## Creating a RobotsTxtService
+### Basic Usage
 
 ```swift
-import CelestraKit
+let rateLimiter = RateLimiter(
+    defaultDelay: 2.0,        // 2s between any requests
+    perDomainDelay: 5.0       // 5s between requests to same domain
+)
 
-// Default user agent
-let robotsService = RobotsTxtService()
+// Wait before fetching
+await rateLimiter.waitIfNeeded(for: feedURL)
 
-// Custom user agent (recommended)
-let customService = RobotsTxtService(userAgent: "CelestraBot/1.0")
+// Fetch feed
+let data = try await URLSession.shared.data(from: feedURL)
 ```
 
-### Choosing a User-Agent
-
-Use a descriptive, identifiable user-agent:
+### Configuration
 
 ```swift
-// Good: Identifies your bot
-let service = RobotsTxtService(userAgent: "MyCoolRSSReader/1.0 (+https://example.com/bot-info)")
+// Conservative: slower, more polite
+let conservative = RateLimiter(
+    defaultDelay: 5.0,
+    perDomainDelay: 10.0
+)
 
-// Bad: Generic or misleading
-let service = RobotsTxtService(userAgent: "Mozilla/5.0") // Don't impersonate browsers
+// Aggressive: faster, higher risk
+let aggressive = RateLimiter(
+    defaultDelay: 0.5,
+    perDomainDelay: 2.0
+)
+
+// Respect feed's TTL
+await rateLimiter.waitIfNeeded(
+    for: feedURL,
+    minimumInterval: feed.minUpdateInterval
+)
 ```
 
-This helps website owners:
-- Identify your bot in logs
-- Set specific policies for your bot
-- Contact you if issues arise
+## Robots.txt Compliance
 
-## Checking if a URL is Allowed
+### Why Robots.txt?
 
-Use ``RobotsTxtService/isAllowed(_:)`` before fetching a feed:
+robots.txt allows sites to:
+- **Specify crawl rules** for automated clients
+- **Set crawl delays** to prevent overload
+- **Block specific paths** from crawling
+
+### Basic Usage
 
 ```swift
-let feedURL = URL(string: "https://example.com/feed.xml")!
+let robotsService = RobotsTxtService(userAgent: "Celestra/1.0")
 
-do {
-    let allowed = try await robotsService.isAllowed(feedURL)
+// Check if URL is allowed
+let isAllowed = try await robotsService.isAllowed(feedURL)
 
-    if allowed {
-        // Safe to fetch
-        let data = try await URLSession.shared.data(from: feedURL)
-    } else {
-        print("Feed is disallowed by robots.txt")
-    }
-} catch {
-    // robots.txt fetch failed - proceed with caution
-    print("Could not fetch robots.txt: \(error)")
+if isAllowed {
+    // Fetch content
+    let data = try await URLSession.shared.data(from: feedURL)
 }
 ```
 
-### Error Handling
-
-If `robots.txt` cannot be fetched (404, timeout, etc.), consider:
-
-- **Conservative approach**: Assume disallowed
-- **Permissive approach**: Assume allowed (most sites don't block RSS)
+### Getting Crawl Delay
 
 ```swift
-let allowed: Bool
-do {
-    allowed = try await robotsService.isAllowed(feedURL)
-} catch {
-    // robots.txt not found - most sites allow RSS feeds
-    allowed = true
-    print("Assuming allowed: \(error)")
+if let delay = try await robotsService.getCrawlDelay(for: feedURL) {
+    print("Site requests \(delay)s delay between requests")
+
+    // Use this delay with RateLimiter
+    await rateLimiter.waitIfNeeded(
+        for: feedURL,
+        minimumInterval: delay
+    )
 }
 ```
 
-## Respecting Crawl Delays
-
-Use ``RobotsTxtService/getCrawlDelay(for:)`` to get the requested delay:
+### Combined Usage
 
 ```swift
-let feedURL = URL(string: "https://example.com/feed.xml")!
+actor ResponsibleFetcher {
+    private let rateLimiter = RateLimiter()
+    private let robotsService = RobotsTxtService(userAgent: "Celestra/1.0")
 
-do {
-    if let crawlDelay = try await robotsService.getCrawlDelay(for: feedURL) {
-        print("Site requests \(crawlDelay) second delay between requests")
-
-        // Respect the delay
-        await rateLimiter.waitIfNeeded(for: feedURL, minimumInterval: crawlDelay)
-    }
-} catch {
-    print("Could not fetch crawl delay: \(error)")
-}
-```
-
-### Combining with RateLimiter
-
-Use both robots.txt crawl delay and rate limiting:
-
-```swift
-actor FeedFetcher {
-    let robotsService = RobotsTxtService(userAgent: "MyBot/1.0")
-    let rateLimiter = RateLimiter(defaultDelay: 1.0, perDomainDelay: 5.0)
-
-    func fetchFeed(url: URL) async throws -> Data {
-        // 1. Check robots.txt permission
+    func fetch(_ url: URL) async throws -> Data {
+        // Check robots.txt
         guard try await robotsService.isAllowed(url) else {
-            throw FeedError.disallowedByRobotsTxt
+            throw FetchError.disallowedByRobots
         }
 
-        // 2. Get crawl delay from robots.txt
+        // Get crawl delay
         let crawlDelay = try await robotsService.getCrawlDelay(for: url)
 
-        // 3. Wait for rate limits (respects crawl delay if longer)
+        // Rate limit
         await rateLimiter.waitIfNeeded(
             for: url,
-            minimumInterval: crawlDelay ?? 5.0
+            minimumInterval: crawlDelay
         )
 
-        // 4. Fetch feed
+        // Fetch
         let (data, _) = try await URLSession.shared.data(from: url)
         return data
     }
 }
 ```
 
-## Caching Behavior
-
-``RobotsTxtService`` automatically caches robots.txt rules:
-
-```swift
-// First call: Fetches robots.txt
-let allowed1 = try await robotsService.isAllowed(someURL)
-
-// Second call: Uses cached rules
-let allowed2 = try await robotsService.isAllowed(anotherURLSameDomain)
-```
-
-### Cache Management
-
-Clear cache when needed:
-
-```swift
-// Clear all cached robots.txt
-await robotsService.clearCache()
-
-// Clear cache for specific domain
-await robotsService.clearCache(for: "example.com")
-```
-
-Consider clearing cache:
-- Periodically (e.g., daily) to get fresh policies
-- When robots.txt fetch fails
-- When website owners contact you about issues
-
-## Understanding RobotsRules
-
-The service returns ``RobotsTxtService/RobotsRules`` containing:
-
-```swift
-public struct RobotsRules {
-    public let disallowedPaths: [String]  // Paths that are disallowed
-    public let crawlDelay: TimeInterval?   // Requested delay in seconds
-    public let fetchedAt: Date            // When rules were fetched
-
-    public func isAllowed(_ path: String) -> Bool
-}
-```
-
-### Path Matching
-
-```swift
-let rules = RobotsRules(
-    disallowedPaths: ["/private/", "/admin/"],
-    crawlDelay: 10,
-    fetchedAt: Date()
-)
-
-rules.isAllowed("/feed.xml")        // true - not in disallowed paths
-rules.isAllowed("/private/data")    // false - matches /private/
-rules.isAllowed("/admin/users")     // false - matches /admin/
-```
-
 ## Best Practices
 
-1. **Always check robots.txt** before fetching feeds from a new domain
-2. **Use descriptive user-agent** that identifies your bot
-3. **Respect crawl delays** specified in robots.txt
-4. **Handle fetch errors gracefully** (assume allowed for RSS feeds)
-5. **Cache robots.txt** to avoid fetching it repeatedly
-6. **Periodically refresh cache** to get updated policies
-7. **Combine with rate limiting** for double protection
-8. **Provide contact info** in your user-agent string
-
-## Example: Complete Ethical Fetcher
+### 1. Combine Services
 
 ```swift
-import CelestraKit
-import Foundation
-
-actor EthicalFeedFetcher {
-    let robotsService = RobotsTxtService(
-        userAgent: "CelestraBot/1.0 (+https://celestra.example.com/bot)"
+actor EthicalFetcher {
+    private let rateLimiter = RateLimiter(
+        defaultDelay: 2.0,
+        perDomainDelay: 5.0
     )
-    let rateLimiter = RateLimiter(defaultDelay: 1.0, perDomainDelay: 5.0)
+    private let robotsService = RobotsTxtService(
+        userAgent: "Celestra/1.0 (+https://celestra.app/bot; contact@celestra.app)"
+    )
 
-    func fetchFeed(url: URL) async throws -> Data {
-        // Step 1: Check robots.txt
-        let allowed: Bool
-        do {
-            allowed = try await robotsService.isAllowed(url)
-        } catch {
-            // If robots.txt unavailable, assume RSS feeds are allowed
-            print("Warning: Could not fetch robots.txt: \(error)")
-            allowed = true
+    func fetch(_ url: URL) async throws -> Data {
+        // Robots.txt check
+        guard try await robotsService.isAllowed(url) else {
+            throw FetchError.robotsDisallowed
         }
 
-        guard allowed else {
-            throw FeedError.disallowedByRobotsTxt
-        }
+        // Respect crawl delay
+        let crawlDelay = try await robotsService.getCrawlDelay(for: url)
 
-        // Step 2: Get crawl delay
-        let crawlDelay: TimeInterval?
-        do {
-            crawlDelay = try await robotsService.getCrawlDelay(for: url)
-        } catch {
-            crawlDelay = nil
-        }
-
-        // Step 3: Respect rate limits and crawl delay
+        // Rate limit
         await rateLimiter.waitIfNeeded(
             for: url,
-            minimumInterval: crawlDelay ?? 5.0
+            minimumInterval: crawlDelay
         )
-        await rateLimiter.waitGlobal()
 
-        // Step 4: Fetch with proper headers
+        // Fetch with proper User-Agent
         var request = URLRequest(url: url)
-        request.setValue(
-            "CelestraBot/1.0 (+https://celestra.example.com/bot)",
-            forHTTPHeaderField: "User-Agent"
-        )
-        request.timeoutInterval = 30
+        request.setValue("Celestra/1.0 (+https://celestra.app/bot; contact@celestra.app)", forHTTPHeaderField: "User-Agent")
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw URLError(.badServerResponse)
-        }
-
+        let (data, _) = try await URLSession.shared.data(for: request)
         return data
     }
-
-    func refreshRobotsTxtCache() async {
-        // Periodically clear cache to get fresh policies
-        await robotsService.clearCache()
-    }
-}
-
-enum FeedError: Error {
-    case disallowedByRobotsTxt
 }
 ```
 
-## Thread Safety
-
-``RobotsTxtService`` is an **actor**, making it thread-safe:
+### 2. Identify Your Crawler
 
 ```swift
-// Safe to call from multiple tasks concurrently
-await withTaskGroup(of: Bool.self) { group in
-    for url in feedURLs {
-        group.addTask {
-            try await robotsService.isAllowed(url)
-        }
+// Always use descriptive User-Agent
+let userAgent = "Celestra/1.0 (+https://celestra.app/bot; contact@celestra.app)"
+
+var request = URLRequest(url: url)
+request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+```
+
+### 3. Respect TTL Headers
+
+```swift
+func fetchWithRespect(_ feed: Feed) async throws -> Data {
+    let url = URL(string: feed.feedURL)!
+
+    // Use feed's minimum update interval
+    if let minInterval = feed.minUpdateInterval {
+        await rateLimiter.waitIfNeeded(
+            for: url,
+            minimumInterval: minInterval
+        )
     }
+
+    // Use HTTP caching headers
+    var request = URLRequest(url: url)
+
+    if let etag = feed.etag {
+        request.setValue(etag, forHTTPHeaderField: "If-None-Match")
+    }
+
+    if let lastModified = feed.lastModified {
+        request.setValue(lastModified, forHTTPHeaderField: "If-Modified-Since")
+    }
+
+    let (data, response) = try await URLSession.shared.data(for: request)
+
+    // Handle 304 Not Modified
+    if let httpResponse = response as? HTTPURLResponse,
+       httpResponse.statusCode == 304 {
+        throw FetchError.notModified
+    }
+
+    return data
 }
 ```
-
-## Common robots.txt Patterns
-
-### Allowing All
-
-```
-User-agent: *
-Allow: /
-```
-
-### Disallowing Specific Paths
-
-```
-User-agent: *
-Disallow: /private/
-Disallow: /admin/
-Allow: /
-```
-
-### Bot-Specific Rules
-
-```
-User-agent: *
-Disallow: /
-
-User-agent: CelestraBot
-Allow: /
-Crawl-delay: 5
-```
-
-### No robots.txt
-
-If a site has no `robots.txt` file (404), all paths are implicitly allowed.
 
 ## See Also
 
+- ``RateLimiter``
 - ``RobotsTxtService``
 - ``RobotsTxtService/RobotsRules``
-- <doc:RateLimiting>
-- ``RateLimiter``
+- <doc:ConcurrencyPatterns>
