@@ -173,7 +173,6 @@ public actor RobotsTxtService {
         let agentPattern = value.lowercased()
         isRelevantUserAgent =
           agentPattern == "*" || agentPattern == userAgent.lowercased()
-          || agentPattern.contains(userAgent.lowercased())
 
       case "disallow":
         if isRelevantUserAgent && !value.isEmpty {

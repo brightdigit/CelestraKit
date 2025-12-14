@@ -102,7 +102,7 @@ function_body_length:
   - 76
 function_parameter_count: 8
 line_length:
-  - 108
+  - 100
   - 200
 closure_body_length:
   - 50

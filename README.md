@@ -249,7 +249,6 @@ if article.isExpired {
 ## Documentation
 
 - **API Documentation**: [View on Swift Package Index](https://swiftpackageindex.com/brightdigit/CelestraKit/documentation)
-- **Contribution Guide**: See [CONTRIBUTING.md](CONTRIBUTING.md)
 - **PRD**: See [.claude/PRD.md](.claude/PRD.md) for development roadmap
 - **Development Guide**: See [CLAUDE.md](CLAUDE.md) for AI-assisted development
 

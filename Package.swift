@@ -70,7 +70,7 @@ let package = Package(
         .target(
             name: "CelestraKit",
             dependencies: [
-                .product(name: "SyndiKit", package: "Syndikit")
+                .product(name: "SyndiKit", package: "SyndiKit")
             ],
             swiftSettings: swiftSettings
         ),

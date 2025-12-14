@@ -39,7 +39,6 @@ CelestraKit is designed for:
 
 ### Essentials
 
-- <doc:GettingStarted>
 - <doc:ModelArchitecture>
 - <doc:CloudKitIntegration>
 
