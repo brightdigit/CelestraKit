@@ -7,7 +7,7 @@
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation
-//  files (the “Software”), to deal in the Software without
+//  files (the "Software"), to deal in the Software without
 //  restriction, including without limitation the rights to use,
 //  copy, modify, merge, publish, distribute, sublicense, and/or
 //  sell copies of the Software, and to permit persons to whom the
@@ -17,7 +17,7 @@
 //  The above copyright notice and this permission notice shall be
 //  included in all copies or substantial portions of the Software.
 //
-//  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 //  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 //  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 //  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -54,6 +54,12 @@ public struct RSSFetcherService {
     ]
 
     self.urlSession = URLSession(configuration: configuration)
+  }
+
+  // Internal initializer for testing with custom URLSession
+  internal init(urlSession: URLSession, userAgent: String) {
+    self.urlSession = urlSession
+    self.userAgent = userAgent
   }
 
   /// Fetch and parse RSS feed from URL with conditional request support
@@ -128,7 +134,9 @@ public struct RSSFetcherService {
 
         // Skip if link is empty
         guard !link.isEmpty else {
-          CelestraLogger.rss.warning("⚠️ Dropping feed item with empty link: title='\(entry.title)', id='\(entry.id.description)'")
+          CelestraLogger.rss.warning(
+            "⚠️ Dropping feed item with empty link: title='\(entry.title)', id='\(entry.id.description)'"
+          )
           return nil
         }
 
@@ -194,15 +202,15 @@ public struct RSSFetcherService {
       let baseInterval: TimeInterval
       switch syndication.period {
       case .hourly:
-        baseInterval = 3600  // 1 hour
+        baseInterval = 3_600  // 1 hour
       case .daily:
-        baseInterval = 86400  // 1 day
+        baseInterval = 86_400  // 1 day
       case .weekly:
-        baseInterval = 604800  // 1 week
+        baseInterval = 604_800  // 1 week
       case .monthly:
-        baseInterval = 2592000  // 30 days (approximation)
+        baseInterval = 2_592_000  // 30 days (approximation)
       case .yearly:
-        baseInterval = 31536000  // 365 days
+        baseInterval = 31_536_000  // 365 days
       }
 
       // frequency = how many times per period
