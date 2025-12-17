@@ -115,7 +115,10 @@ public actor RobotsTxtService {
 
   /// Fetch and parse robots.txt for a domain
   private func fetchAndParseRobotsTxt(for host: String) async throws -> RobotsRules {
-    let robotsURL = URL(string: "https://\(host)/robots.txt")!
+    guard let robotsURL = URL(string: "https://\(host)/robots.txt") else {
+      // Invalid host string - fail open (allow access)
+      return RobotsRules(disallowedPaths: [], crawlDelay: nil, fetchedAt: Date())
+    }
 
     do {
       let (data, response) = try await URLSession.shared.data(from: robotsURL)
