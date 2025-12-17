@@ -2,7 +2,8 @@
 //  CloudKitConversionError.swift
 //  CelestraKit
 //
-//  Created for Celestra on 2025-12-16.
+//  Created by Leo Dion.
+//  Copyright © 2025 BrightDigit.
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation
@@ -30,18 +31,18 @@ public import Foundation
 
 /// Errors thrown during CloudKit record conversion
 public enum CloudKitConversionError: LocalizedError {
-    case missingRequiredField(fieldName: String, recordType: String)
-    case invalidFieldType(fieldName: String, expected: String, actual: String)
-    case invalidFieldValue(fieldName: String, reason: String)
+  case missingRequiredField(fieldName: String, recordType: String)
+  case invalidFieldType(fieldName: String, expected: String, actual: String)
+  case invalidFieldValue(fieldName: String, reason: String)
 
-    public var errorDescription: String? {
-        switch self {
-        case .missingRequiredField(let field, let type):
-            return "Required field '\(field)' missing in \(type) record"
-        case .invalidFieldType(let field, let expected, let actual):
-            return "Invalid type for '\(field)': expected \(expected), got \(actual)"
-        case .invalidFieldValue(let field, let reason):
-            return "Invalid value for '\(field)': \(reason)"
-        }
+  public var errorDescription: String? {
+    switch self {
+    case .missingRequiredField(let field, let type):
+      return "Required field '\(field)' missing in \(type) record"
+    case .invalidFieldType(let field, let expected, let actual):
+      return "Invalid type for '\(field)': expected \(expected), got \(actual)"
+    case .invalidFieldValue(let field, let reason):
+      return "Invalid value for '\(field)': \(reason)"
     }
+  }
 }

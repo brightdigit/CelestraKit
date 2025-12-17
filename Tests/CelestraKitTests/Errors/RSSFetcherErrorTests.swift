@@ -58,7 +58,7 @@ struct RSSFetcherErrorTests {
   @Test("Errors conform to LocalizedError")
   func testLocalizedErrorConformance() async throws {
     let error = RSSFetcherError.invalidFeedData("Test")
-    let _: any LocalizedError = error // Compile-time check
+    let _: any LocalizedError = error  // Compile-time check
     #expect(error.errorDescription != nil)
   }
 }

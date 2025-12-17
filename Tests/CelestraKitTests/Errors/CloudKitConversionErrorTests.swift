@@ -79,7 +79,7 @@ struct CloudKitConversionErrorTests {
       fieldName: "test",
       recordType: "Test"
     )
-    let _: any LocalizedError = error // Compile-time check
+    let _: any LocalizedError = error  // Compile-time check
     #expect(error.errorDescription != nil)
   }
 }
