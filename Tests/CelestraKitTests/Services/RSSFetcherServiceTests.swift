@@ -36,14 +36,15 @@ import Testing
   import FoundationNetworking
 #endif
 
-@Suite("RSSFetcherService Tests", .serialized)
+@Suite("RSSFetcherService Tests", .serialized, .tags(.networkMock))
 final class RSSFetcherServiceTests {
   init() {
-    MockURLProtocol.register()
+    mockURLProtocolSemaphore.wait()
   }
 
   deinit {
-    MockURLProtocol.unregister()
+    MockURLProtocol.requestHandler = nil
+    mockURLProtocolSemaphore.signal()
   }
 
   // MARK: - fetchFeed() Success Cases

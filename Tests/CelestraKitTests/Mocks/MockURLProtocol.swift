@@ -33,28 +33,42 @@ import Foundation
   import FoundationNetworking
 #endif
 
+/// Actor to manage MockURLProtocol handlers safely across concurrent test suites
+internal actor MockURLProtocolManager {
+  internal static let shared = MockURLProtocolManager()
+
+  private var handlers: [ObjectIdentifier: (URLRequest) throws -> (HTTPURLResponse, Data?)] = [:]
+
+  internal func setHandler(
+    for session: URLSession,
+    handler: @escaping (URLRequest) throws -> (HTTPURLResponse, Data?)
+  ) {
+    let id = ObjectIdentifier(session)
+    handlers[id] = handler
+  }
+
+  internal func getHandler(for session: URLSession) -> ((URLRequest) throws -> (HTTPURLResponse, Data?))? {
+    let id = ObjectIdentifier(session)
+    return handlers[id]
+  }
+
+  internal func clearHandler(for session: URLSession) {
+    let id = ObjectIdentifier(session)
+    handlers.removeValue(forKey: id)
+  }
+}
+
 /// Mock URLProtocol for intercepting network requests in tests
-/// Uses static handler to avoid data races while maintaining flexibility
+/// Uses actor-based handler management to support concurrent test suites
 internal final class MockURLProtocol: URLProtocol, @unchecked Sendable {
-  /// Thread-safe storage for mock responses
-  /// Set this before each test to define the response behavior
+  /// Fallback static handler for backwards compatibility
+  /// Prefer using withMockHandler() helper instead
   nonisolated(unsafe) internal static var requestHandler:
     (
       (URLRequest) throws -> (
         HTTPURLResponse, Data?
       )
     )?
-
-  /// Register this protocol with URLSession
-  internal static func register() {
-    URLProtocol.registerClass(Self.self)
-  }
-
-  /// Unregister and reset
-  internal static func unregister() {
-    URLProtocol.unregisterClass(Self.self)
-    requestHandler = nil
-  }
 
   override internal static func canInit(with request: URLRequest) -> Bool {
     true  // Intercept all requests
@@ -65,6 +79,7 @@ internal final class MockURLProtocol: URLProtocol, @unchecked Sendable {
   }
 
   override internal func startLoading() {
+    // Use fallback static handler
     guard let handler = Self.requestHandler else {
       client?.urlProtocol(self, didFailWithError: URLError(.unknown))
       return

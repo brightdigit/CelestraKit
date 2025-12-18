@@ -32,7 +32,7 @@ public import Foundation
 /// Errors thrown by RSSFetcherService
 public enum RSSFetcherError: LocalizedError {
   case invalidFeedData(String)
-  case rssFetchFailed(URL, underlying: Error)
+  case rssFetchFailed(URL, underlying: any Error)
 
   public var errorDescription: String? {
     switch self {

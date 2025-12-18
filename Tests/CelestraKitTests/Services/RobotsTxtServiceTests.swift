@@ -3,14 +3,15 @@ import Testing
 
 @testable import CelestraKit
 
-@Suite("RobotsTxtService Tests", .serialized)
+@Suite("RobotsTxtService Tests", .serialized, .tags(.networkMock))
 final class RobotsTxtServiceTests {
   init() {
-    MockURLProtocol.register()
+    mockURLProtocolSemaphore.wait()
   }
 
   deinit {
-    MockURLProtocol.unregister()
+    MockURLProtocol.requestHandler = nil
+    mockURLProtocolSemaphore.signal()
   }
 
   @Test("Parse robots.txt with wildcard user-agent")

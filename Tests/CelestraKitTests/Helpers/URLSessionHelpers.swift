@@ -28,10 +28,25 @@
 //
 
 import Foundation
+import Testing
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
+
+// Register MockURLProtocol globally once when module loads
+private let mockURLProtocolRegistration: Void = {
+  URLProtocol.registerClass(MockURLProtocol.self)
+}()
+
+/// Semaphore to serialize test suites using MockURLProtocol
+/// Prevents concurrent test suites from interfering with each other's mock handlers
+internal let mockURLProtocolSemaphore = DispatchSemaphore(value: 1)
+
+/// Tag for tests that use network mocking
+extension Tag {
+  @Tag static var networkMock: Self
+}
 
 /// Creates a URLSession configured to use MockURLProtocol
 internal func createMockURLSession() -> URLSession {
