@@ -15,7 +15,7 @@ final class RobotsTxtServiceTests {
 
   @Test("Parse robots.txt with wildcard user-agent")
   func testParseRobotsTxtWithWildcardUserAgent() async {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     let content = """
       User-agent: *
@@ -34,7 +34,7 @@ final class RobotsTxtServiceTests {
 
   @Test("Parse robots.txt with specific user-agent")
   func testParseRobotsTxtWithSpecificUserAgent() async throws {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     let content = """
       User-agent: Googlebot
@@ -92,7 +92,7 @@ final class RobotsTxtServiceTests {
 
   @Test("Parse robots.txt handles empty and comment lines")
   func testParseRobotsTxtWithCommentsAndEmptyLines() async {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     let content = """
       # This is a comment
@@ -113,7 +113,7 @@ final class RobotsTxtServiceTests {
 
   @Test("Parse robots.txt handles case-insensitive directives")
   func testParseRobotsTxtCaseInsensitive() async {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     let content = """
       USER-AGENT: *
@@ -130,7 +130,7 @@ final class RobotsTxtServiceTests {
 
   @Test("Parse robots.txt with multiple user-agents using wildcard")
   func testParseRobotsTxtMultipleUserAgents() async {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     let content = """
       User-agent: Googlebot
@@ -153,7 +153,7 @@ final class RobotsTxtServiceTests {
 
   @Test("Cache stores and retrieves rules")
   func testCacheStoresRules() async throws {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     // Clear cache first
     await service.clearCache()
@@ -170,7 +170,7 @@ final class RobotsTxtServiceTests {
 
   @Test("isAllowed handles URLs without host")
   func testIsAllowedWithoutHost() async throws {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     // URLs without host should be allowed
     let urlWithoutHost = URL(string: "/path/to/resource")!
@@ -181,7 +181,7 @@ final class RobotsTxtServiceTests {
 
   @Test("getCrawlDelay returns nil for URLs without host")
   func testGetCrawlDelayWithoutHost() async throws {
-    let service = RobotsTxtService(userAgent: "Celestra")
+    let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
     let urlWithoutHost = URL(string: "/path/to/resource")!
     let delay = try await service.getCrawlDelay(for: urlWithoutHost)
@@ -226,7 +226,7 @@ final class RobotsTxtServiceTests {
     }
 
     let session = createMockURLSession()
-    let service = RobotsTxtService(urlSession: session, userAgent: "TestBot")
+    let service = RobotsTxtService(urlSession: session, userAgent: UserAgent.cloud(build: 1))
 
     let testURL = URL(string: "https://example.com/test/page")!
     let allowed = try await service.isAllowed(testURL)
@@ -249,7 +249,7 @@ final class RobotsTxtServiceTests {
     }
 
     let session = createMockURLSession()
-    let service = RobotsTxtService(urlSession: session, userAgent: "TestBot")
+    let service = RobotsTxtService(urlSession: session, userAgent: UserAgent.cloud(build: 1))
 
     let testURL = URL(string: "https://example.com/test/page")!
     let allowed = try await service.isAllowed(testURL)
@@ -264,7 +264,7 @@ final class RobotsTxtServiceTests {
     }
 
     let session = createMockURLSession()
-    let service = RobotsTxtService(urlSession: session, userAgent: "TestBot")
+    let service = RobotsTxtService(urlSession: session, userAgent: UserAgent.cloud(build: 1))
 
     let testURL = URL(string: "https://example.com/test/page")!
     let allowed = try await service.isAllowed(testURL)
@@ -304,7 +304,7 @@ final class RobotsTxtServiceTests {
     }
 
     let session = createMockURLSession()
-    let service = RobotsTxtService(urlSession: session, userAgent: "TestBot")
+    let service = RobotsTxtService(urlSession: session, userAgent: UserAgent.cloud(build: 1))
 
     // Test disallowed paths
     let apiURL = URL(string: "https://example.com/api/users")!
@@ -353,7 +353,7 @@ final class RobotsTxtServiceTests {
     }
 
     let session = createMockURLSession()
-    let service = RobotsTxtService(urlSession: session, userAgent: "TestBot")
+    let service = RobotsTxtService(urlSession: session, userAgent: UserAgent.cloud(build: 1))
 
     let testURL = URL(string: "https://example.com/test")!
     let delay = try await service.getCrawlDelay(for: testURL)
@@ -394,7 +394,7 @@ final class RobotsTxtServiceTests {
     }
 
     let session = createMockURLSession()
-    let service = RobotsTxtService(urlSession: session, userAgent: "TestBot")
+    let service = RobotsTxtService(urlSession: session, userAgent: UserAgent.cloud(build: 1))
 
     // First request should fetch robots.txt
     let url1 = URL(string: "https://example.com/page1")!
@@ -447,7 +447,7 @@ final class RobotsTxtServiceTests {
       case "user-agent":
         let agentPattern = value.lowercased()
         isRelevantUserAgent =
-          agentPattern == "*" || agentPattern == "celestra" || agentPattern.contains("celestra")
+          agentPattern == "*" || agentPattern == "celestra" || agentPattern == "celestracloud"
 
       case "disallow":
         if isRelevantUserAgent && !value.isEmpty {

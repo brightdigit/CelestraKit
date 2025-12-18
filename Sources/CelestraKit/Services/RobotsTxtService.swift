@@ -36,7 +36,7 @@ public import Foundation
 /// Service for fetching and parsing robots.txt files
 public actor RobotsTxtService {
   private var cache: [String: RobotsRules] = [:]
-  private let userAgent: String
+  private let userAgent: UserAgent
   private let urlSession: URLSession
 
   /// Represents parsed robots.txt rules for a domain
@@ -68,14 +68,14 @@ public actor RobotsTxtService {
   }
 
   public init(
-    userAgent: String = "Celestra",
+    userAgent: UserAgent,
     configuration: URLSessionConfiguration = .default
   ) {
     self.userAgent = userAgent
 
     // Configure URLSession with User-Agent header
     configuration.httpAdditionalHeaders = [
-      "User-Agent": userAgent
+      "User-Agent": userAgent.string
     ]
 
     self.urlSession = URLSession(configuration: configuration)
@@ -84,8 +84,8 @@ public actor RobotsTxtService {
   /// Internal initializer for testing with custom URLSession
   /// - Parameters:
   ///   - urlSession: Custom URLSession (typically configured with MockURLProtocol)
-  ///   - userAgent: User agent string to identify the bot
-  internal init(urlSession: URLSession, userAgent: String) {
+  ///   - userAgent: User agent to identify the bot
+  internal init(urlSession: URLSession, userAgent: UserAgent) {
     self.urlSession = urlSession
     self.userAgent = userAgent
   }
@@ -195,7 +195,7 @@ public actor RobotsTxtService {
         // Check if this section applies to us
         let agentPattern = value.lowercased()
         isRelevantUserAgent =
-          agentPattern == "*" || agentPattern == userAgent.lowercased()
+          agentPattern == "*" || agentPattern == userAgent.name.lowercased()
 
       case "disallow":
         if isRelevantUserAgent && !value.isEmpty {

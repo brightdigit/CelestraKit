@@ -38,17 +38,17 @@ import SyndiKit
 /// Service for fetching and parsing RSS feeds using SyndiKit with web etiquette
 public struct RSSFetcherService {
   private let urlSession: URLSession
-  private let userAgent: String
+  private let userAgent: UserAgent
 
   public init(
-    userAgent: String = "Celestra/1.0 (MistKit RSS Reader; +https://github.com/brightdigit/MistKit)",
+    userAgent: UserAgent,
     configuration: URLSessionConfiguration = .default
   ) {
     self.userAgent = userAgent
 
     // Configure URLSession with proper headers
     configuration.httpAdditionalHeaders = [
-      "User-Agent": userAgent,
+      "User-Agent": userAgent.string,
       "Accept":
         "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.7",
     ]
@@ -57,7 +57,7 @@ public struct RSSFetcherService {
   }
 
   // Internal initializer for testing with custom URLSession
-  internal init(urlSession: URLSession, userAgent: String) {
+  internal init(urlSession: URLSession, userAgent: UserAgent) {
     self.urlSession = urlSession
     self.userAgent = userAgent
   }
