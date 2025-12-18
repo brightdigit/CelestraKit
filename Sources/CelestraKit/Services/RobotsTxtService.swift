@@ -30,7 +30,7 @@
 public import Foundation
 
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
 #endif
 
 /// Service for fetching and parsing robots.txt files

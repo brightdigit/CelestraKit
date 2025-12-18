@@ -32,7 +32,7 @@ import Logging
 import SyndiKit
 
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
 #endif
 
 /// Service for fetching and parsing RSS feeds using SyndiKit with web etiquette

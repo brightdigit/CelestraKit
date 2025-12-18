@@ -3,6 +3,10 @@ import Testing
 
 @testable import CelestraKit
 
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
 @Suite("RobotsTxtService Tests", .serialized, .tags(.networkMock))
 final class RobotsTxtServiceTests {
   init() {
