@@ -37,6 +37,7 @@ public import Foundation
 public actor RobotsTxtService {
   private var cache: [String: RobotsRules] = [:]
   private let userAgent: String
+  private let urlSession: URLSession
 
   /// Represents parsed robots.txt rules for a domain
   public struct RobotsRules {
@@ -66,7 +67,26 @@ public actor RobotsTxtService {
     }
   }
 
-  public init(userAgent: String = "Celestra") {
+  public init(
+    userAgent: String = "Celestra",
+    configuration: URLSessionConfiguration = .default
+  ) {
+    self.userAgent = userAgent
+
+    // Configure URLSession with User-Agent header
+    configuration.httpAdditionalHeaders = [
+      "User-Agent": userAgent
+    ]
+
+    self.urlSession = URLSession(configuration: configuration)
+  }
+
+  /// Internal initializer for testing with custom URLSession
+  /// - Parameters:
+  ///   - urlSession: Custom URLSession (typically configured with MockURLProtocol)
+  ///   - userAgent: User agent string to identify the bot
+  internal init(urlSession: URLSession, userAgent: String) {
+    self.urlSession = urlSession
     self.userAgent = userAgent
   }
 
@@ -121,7 +141,7 @@ public actor RobotsTxtService {
     }
 
     do {
-      let (data, response) = try await URLSession.shared.data(from: robotsURL)
+      let (data, response) = try await urlSession.data(from: robotsURL)
 
       guard let httpResponse = response as? HTTPURLResponse else {
         // Default to allow if we can't get a response

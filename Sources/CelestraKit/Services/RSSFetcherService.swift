@@ -41,12 +41,12 @@ public struct RSSFetcherService {
   private let userAgent: String
 
   public init(
-    userAgent: String = "Celestra/1.0 (MistKit RSS Reader; +https://github.com/brightdigit/MistKit)"
+    userAgent: String = "Celestra/1.0 (MistKit RSS Reader; +https://github.com/brightdigit/MistKit)",
+    configuration: URLSessionConfiguration = .default
   ) {
     self.userAgent = userAgent
 
-    // Create custom URLSession with proper configuration
-    let configuration = URLSessionConfiguration.default
+    // Configure URLSession with proper headers
     configuration.httpAdditionalHeaders = [
       "User-Agent": userAgent,
       "Accept":
