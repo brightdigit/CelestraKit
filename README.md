@@ -34,7 +34,7 @@ CelestraKit is a Swift package that provides shared CloudKit data models for the
 - **📱 CloudKit Public Database Models**: Shared data structures for feeds and articles
 - **🔄 Cross-Platform Compatibility**: Works on all Apple platforms with CloudKit support
 - **🔐 Server-Side Metrics**: Track feed health, success rates, and fetch statistics
-- **🔍 Content Deduplication**: SHA-256 hashing for intelligent article deduplication
+- **🔍 Content Deduplication**: Composite key hashing for intelligent article deduplication
 - **⏱️ TTL-Based Caching**: Automatic expiration tracking for article freshness
 - **📊 Quality Indicators**: Feed quality scoring and health monitoring
 - **🧮 Reading Time Estimation**: Automatic word count and reading time calculation
@@ -180,7 +180,7 @@ let article = Article(
 // Automatic content processing
 print("Word count: \(article.wordCount ?? 0)")
 print("Plain text: \(article.contentText ?? "")")
-print("Content hash: \(article.contentHash)")  // SHA-256 for deduplication
+print("Content hash: \(article.contentHash)")  // Composite key for deduplication
 
 // Check if article needs refresh
 if article.isExpired {
@@ -189,7 +189,7 @@ if article.isExpired {
 ```
 
 **Key Features:**
-- **Content Hash**: SHA-256 hash of title + URL + guid for deduplication
+- **Content Hash**: Composite key of title|url|guid for deduplication
 - **Plain Text Extraction**: Automatic HTML → plain text conversion
 - **Reading Time**: Estimated based on 200 words per minute
 - **TTL Management**: Automatic expiration tracking
