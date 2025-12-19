@@ -54,6 +54,25 @@ jobs:
         with:
           windows-swift-version: ${{ matrix.swift.version }}
           windows-swift-build: ${{ matrix.swift.build }}
+
+      # Attempt coverage collection (may not be fully supported on Windows)
+      - name: Process Coverage
+        uses: sersoft-gmbh/swift-coverage-action@v4
+        id: coverage-files
+        with:
+          fail-on-empty-output: false
+        continue-on-error: true
+
+      # Upload coverage if available
+      - name: Upload Coverage
+        if: steps.coverage-files.outputs.files != ''
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: windows-${{ matrix.runs-on }}-swift-${{ matrix.swift.build }}
+          files: ${{ join(fromJSON(steps.coverage-files.outputs.files), ',') }}
+          verbose: true
+        continue-on-error: true
   build-macos:
     name: Build on macOS
     env:

@@ -74,7 +74,7 @@ public struct Article: Sendable, Codable, Hashable, Identifiable {
   /// When article expires from cache (TTL)
   public let expiresAt: Date
 
-  /// SHA-256 content hash for deduplication
+  /// Composite key (title|url|guid) for deduplication
   public let contentHash: String
 
   /// Word count for reading time estimation
@@ -152,9 +152,21 @@ public struct Article: Sendable, Codable, Hashable, Identifiable {
   }
 
   /// Extract plain text from HTML content
+  ///
+  /// - Warning: **Security Notice (v0.0.1)**: This implementation uses regex-based HTML parsing
+  ///   which is NOT production-ready. Known limitations:
+  ///   - Potential ReDoS vulnerabilities with maliciously crafted HTML
+  ///   - Does not handle all HTML edge cases correctly
+  ///   - Only decodes a limited set of HTML entities
+  ///
+  /// - Note: **Planned for v0.1.0**: Replace with proper HTML parser library
+  ///   (e.g., SwiftSoup or XMLCoder with HTML support)
+  ///
+  /// - Parameter html: HTML string to convert to plain text
+  /// - Returns: Plain text with HTML tags removed, or nil if input is nil
   public static func extractPlainText(from html: String?) -> String? {
     guard let html = html else { return nil }
-    // Simple HTML tag removal (use proper HTML parser in production)
+    // TODO: Replace with proper HTML parser in v0.1.0
     let withoutTags = html.replacingOccurrences(
       of: "<[^>]+>", with: "", options: .regularExpression)
     let decoded =
