@@ -2,6 +2,15 @@
   "originHash" : "67ad400628d4a624266ca1a897f50beb4de8e0d3f2b03f9449639db5ff5baee3",
   "pins" : [
     {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "bc386b95f2a16ccd0150a8235e7c69eab2b866ca",
+        "version" : "1.8.0"
+      }
+    },
+    {
       "identity" : "syndikit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/brightdigit/SyndiKit.git",
