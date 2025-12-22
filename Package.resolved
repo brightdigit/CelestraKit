@@ -1,5 +1,5 @@
 {
-  "originHash" : "d75ef9ef1a00edc1983c95075750617590da829597fea4cd7917127c2f5bd507",
+  "originHash" : "65f65a345d1475809eb5af8e4db28cb9bc87564b1a60461715c86b10861826bb",
   "pins" : [
     {
       "identity" : "swift-log",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/brightdigit/SyndiKit.git",
       "state" : {
-        "revision" : "1b7991213a1562bb6d93ffedf58533c06fe626f5",
-        "version" : "0.6.1"
+        "revision" : "741d082708642a922241bfd75bf06f5264e8d8b9",
+        "version" : "0.7.0"
       }
     },
     {
