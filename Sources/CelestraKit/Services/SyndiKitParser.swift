@@ -40,48 +40,29 @@ public import Foundation
   import FoundationNetworking
 #endif
 
-/// Simplified SyndiKit parser using URLSession directly
+/// Simplified SyndiKit parser using HTTPClientProtocol
 /// Replaces 332 lines of HTTP/cache abstraction complexity
 public final class SyndiKitParser: @unchecked Sendable {
   private let synDecoder: SynDecoder
-  #if !canImport(FoundationNetworking)
-    // Apple platforms (iOS, macOS, etc.) - URLSession is in Foundation
-    private let session: URLSession
+  private let httpClient: any HTTPClientProtocol
 
-    public init() {
-      self.synDecoder = SynDecoder()
+  /// Initialize with optional HTTP client (defaults to cached URLSession)
+  /// - Parameter httpClient: HTTP client for fetching feeds (useful for testing)
+  public init(httpClient: (any HTTPClientProtocol)? = nil) {
+    self.synDecoder = SynDecoder()
+    self.httpClient = httpClient ?? URLSessionHTTPClient.withCaching()
+  }
 
-      // Configure URLSession with built-in caching
-      let config = URLSessionConfiguration.default
-      config.requestCachePolicy = .returnCacheDataElseLoad
-      config.urlCache = URLCache(
-        memoryCapacity: 20 * 1_024 * 1_024,  // 20 MB memory cache
-        diskCapacity: 100 * 1_024 * 1_024,  // 100 MB disk cache
-        diskPath: nil
-      )
-      self.session = URLSession(configuration: config)
-    }
+  public func parse(url: URL) async throws -> ParsedFeed {
+    // Fetch data using HTTP client (with built-in caching)
+    let data = try await httpClient.fetch(url: url)
 
-    public func parse(url: URL) async throws -> ParsedFeed {
-      // Fetch data using URLSession (with built-in caching)
-      let (data, _) = try await session.data(from: url)
+    // Decode using SyndiKit
+    let feedable = try synDecoder.decode(data)
 
-      // Decode using SyndiKit
-      let feedable = try synDecoder.decode(data)
-
-      // Map to ParsedFeed
-      return try mapToParsedfeed(feedable, url: url)
-    }
-  #else
-    // Linux/non-Apple platforms - would need FoundationNetworking
-    public init() {
-      self.synDecoder = SynDecoder()
-    }
-
-    public func parse(url: URL) async throws -> ParsedFeed {
-      throw FeedParserError.networkError(underlying: URLError(.unsupportedURL))
-    }
-  #endif
+    // Map to ParsedFeed
+    return try mapToParsedfeed(feedable, url: url)
+  }
 }
 
 // MARK: - Private Mapping Methods
