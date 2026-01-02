@@ -42,7 +42,7 @@ public import Foundation
 
 /// Simplified SyndiKit parser using HTTPClientProtocol
 /// Replaces 332 lines of HTTP/cache abstraction complexity
-public final class SyndiKitParser: @unchecked Sendable {
+public final class SyndiKitParser: Sendable {
   private let synDecoder: SynDecoder
   private let httpClient: any HTTPClientProtocol
 

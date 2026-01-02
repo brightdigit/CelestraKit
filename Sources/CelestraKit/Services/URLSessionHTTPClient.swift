@@ -45,7 +45,7 @@ public enum HTTPClientError: Error {
 ///   - Darwin platforms: Use Foundation's URLSession
 ///   - Linux: Requires FoundationNetworking import
 ///   - Fallback: Gracefully fails on platforms without networking support
-public final class URLSessionHTTPClient: HTTPClientProtocol, @unchecked Sendable {
+public final class URLSessionHTTPClient: HTTPClientProtocol, Sendable {
   private let session: URLSession
 
   public init(session: URLSession = .shared) {
