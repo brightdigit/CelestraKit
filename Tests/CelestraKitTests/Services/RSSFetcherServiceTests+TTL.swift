@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  RSSFetcherServiceTests+TTL.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -36,5 +36,39 @@ import Testing
   import FoundationNetworking
 #endif
 
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+extension RSSFetcherServiceTests {
+  @Suite("RSSFetcherService parseUpdateInterval() - TTL Tests", .serialized, .tags(.networkMock))
+  final class TTL {
+    init() {
+      mockURLProtocolSemaphore.wait()
+    }
+
+    deinit {
+      MockURLProtocol.requestHandler = nil
+      mockURLProtocolSemaphore.signal()
+    }
+
+    @Test("Parse RSS TTL correctly")
+    func parseRSSTTL() async throws {
+      let feedURL = URL(string: "https://example.com/feed.xml")!
+      let mockData = try FixtureLoader.load("RSS/rss-with-ttl.xml")
+
+      MockURLProtocol.requestHandler = { _ in
+        let response = HTTPURLResponse(
+          url: feedURL, statusCode: 200,
+          httpVersion: nil, headerFields: nil
+        )!
+        return (response, mockData)
+      }
+
+      let service = RSSFetcherService(
+        urlSession: createMockURLSession(), userAgent: UserAgent.app(build: 1))
+      let result = try await service.fetchFeed(from: feedURL)
+
+      let interval = try #require(result.feedData?.minUpdateInterval)
+
+      // TTL is 60 minutes = 3600 seconds
+      #expect(interval == 3_600.0)
+    }
+  }
+}

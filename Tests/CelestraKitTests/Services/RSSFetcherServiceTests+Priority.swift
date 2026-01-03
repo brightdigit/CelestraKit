@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  RSSFetcherServiceTests+Priority.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -36,5 +36,40 @@ import Testing
   import FoundationNetworking
 #endif
 
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+extension RSSFetcherServiceTests {
+  @Suite("RSSFetcherService parseUpdateInterval() - Priority Tests", .serialized, .tags(.networkMock))
+  final class Priority {
+    init() {
+      mockURLProtocolSemaphore.wait()
+    }
+
+    deinit {
+      MockURLProtocol.requestHandler = nil
+      mockURLProtocolSemaphore.signal()
+    }
+
+    @Test("TTL takes priority over syndication module")
+    func ttlTakesPriorityOverSyndication() async throws {
+      let feedURL = URL(string: "https://example.com/feed.xml")!
+      let mockData = try FixtureLoader.load("RSS/rss-with-ttl-and-syndication.xml")
+
+      MockURLProtocol.requestHandler = { _ in
+        let response = HTTPURLResponse(
+          url: feedURL, statusCode: 200,
+          httpVersion: nil, headerFields: nil
+        )!
+        return (response, mockData)
+      }
+
+      let service = RSSFetcherService(
+        urlSession: createMockURLSession(), userAgent: UserAgent.app(build: 1))
+      let result = try await service.fetchFeed(from: feedURL)
+
+      let interval = try #require(result.feedData?.minUpdateInterval)
+
+      // TTL is 30 minutes (1800s), syndication is daily (86400s)
+      // TTL should take priority
+      #expect(interval == 1_800.0)
+    }
+  }
+}
