@@ -62,7 +62,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/brightdigit/SyndiKit.git", from: "0.7.0"),
+        .package(url: "https://github.com/brightdigit/SyndiKit.git", branch: "v0.8.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0")
     ],
