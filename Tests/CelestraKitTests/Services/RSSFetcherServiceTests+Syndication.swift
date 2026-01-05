@@ -37,7 +37,8 @@ import Testing
 #endif
 
 extension RSSFetcherServiceTests {
-  @Suite("RSSFetcherService parseUpdateInterval() - Syndication Tests", .serialized, .tags(.networkMock))
+  @Suite(
+    "RSSFetcherService parseUpdateInterval() - Syndication Tests", .serialized, .tags(.networkMock))
   final class Syndication {
     init() {
       mockURLProtocolSemaphore.wait()

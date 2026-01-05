@@ -71,7 +71,7 @@ if [ -z "$FORMAT_ONLY" ]; then
 	run_command swift build --build-tests
 fi
 
-$PACKAGE_DIR/Scripts/header.sh -d  $PACKAGE_DIR/Sources -c "Leo Dion" -o "BrightDigit" -p "CelestraKit"
+$PACKAGE_DIR/Scripts/header.sh -d  $PACKAGE_DIR/Sources -c "Leo Dion" -o "BrightDigit" -p "CelestraKit" -y 2025
 
 if [ -z "$CI" ]; then
 	run_command $MINT_RUN periphery scan $PERIPHERY_OPTIONS --disable-update-check
