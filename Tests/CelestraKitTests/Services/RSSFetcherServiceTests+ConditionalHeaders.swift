@@ -39,13 +39,14 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService Conditional Headers Tests", .serialized, .tags(.networkMock))
   final class ConditionalHeaders {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Send If-Modified-Since header when lastModified provided")

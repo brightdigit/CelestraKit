@@ -39,13 +39,14 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService fetchFeed() Success Cases", .serialized, .tags(.networkMock))
   final class FetchSuccess {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Fetch basic RSS feed successfully")

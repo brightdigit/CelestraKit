@@ -40,13 +40,14 @@ extension RSSFetcherServiceTests {
   @Suite(
     "RSSFetcherService parseUpdateInterval() - Syndication Tests", .serialized, .tags(.networkMock))
   final class Syndication {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Parse syndication hourly period")

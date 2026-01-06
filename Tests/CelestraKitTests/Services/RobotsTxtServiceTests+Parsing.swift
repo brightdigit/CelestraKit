@@ -10,13 +10,14 @@ import Testing
 extension RobotsTxtServiceTests {
   @Suite("RobotsTxtService Parsing Tests", .serialized, .tags(.networkMock))
   final class Parsing {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Parse robots.txt with wildcard user-agent")

@@ -39,13 +39,14 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService parseUpdateInterval() - TTL Tests", .serialized, .tags(.networkMock))
   final class TTL {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Parse RSS TTL correctly")
