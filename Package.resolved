@@ -1,5 +1,5 @@
 {
-  "originHash" : "229b1796099130993ba578462c6ae6d26116a9c046009cab73a3c2146841d0e6",
+  "originHash" : "67ad400628d4a624266ca1a897f50beb4de8e0d3f2b03f9449639db5ff5baee3",
   "pins" : [
     {
       "identity" : "swift-asn1",
@@ -24,17 +24,26 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "b1fa4ef41fe21b13120c034854042d12c43f66b2",
-        "version" : "1.7.1"
+        "revision" : "bc386b95f2a16ccd0150a8235e7c69eab2b866ca",
+        "version" : "1.8.0"
+      }
+    },
+    {
+      "identity" : "syndikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/SyndiKit.git",
+      "state" : {
+        "revision" : "f6f9cc8d1c905e67e66ba2822dd30299ead26867",
+        "version" : "0.8.0"
       }
     },
     {
       "identity" : "xmlcoder",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/brightdigit/XMLCoder",
+      "location" : "https://github.com/CoreOffice/XMLCoder",
       "state" : {
-        "revision" : "8ba70f27664ea8c8b7f38fb4c6f2fd4c129eb9c5",
-        "version" : "1.0.0-alpha.1"
+        "revision" : "5e1ada828d2618ecb79c974e03f79c8f4df90b71",
+        "version" : "0.18.0"
       }
     }
   ],

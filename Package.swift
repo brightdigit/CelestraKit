@@ -62,8 +62,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../Syndikit"),
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.6.0"),
+        .package(url: "https://github.com/brightdigit/SyndiKit.git", from: "0.8.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0")
     ],
     targets: [
@@ -72,7 +72,7 @@ let package = Package(
         .target(
             name: "CelestraKit",
             dependencies: [
-                .product(name: "SyndiKit", package: "Syndikit"),
+                .product(name: "SyndiKit", package: "SyndiKit"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto")
             ],
@@ -81,6 +81,7 @@ let package = Package(
         .testTarget(
             name: "CelestraKitTests",
             dependencies: ["CelestraKit"],
+            resources: [.copy("Fixtures")],
             swiftSettings: swiftSettings
         ),
     ]
