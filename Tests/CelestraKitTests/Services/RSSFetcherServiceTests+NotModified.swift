@@ -39,13 +39,14 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService 304 Not Modified Tests", .serialized, .tags(.networkMock))
   final class NotModified {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Handle 304 Not Modified response")

@@ -39,13 +39,14 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService Item Filtering Tests", .serialized, .tags(.networkMock))
   final class ItemFiltering {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     // TODO: File upstream issue with SyndiKit for RSS feeds with empty <link> elements

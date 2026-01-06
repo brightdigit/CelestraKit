@@ -40,13 +40,14 @@ extension RSSFetcherServiceTests {
   @Suite(
     "RSSFetcherService parseUpdateInterval() - Nil Cases Tests", .serialized, .tags(.networkMock))
   final class NilCases {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Atom feeds return nil update interval")

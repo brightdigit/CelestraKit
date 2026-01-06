@@ -10,13 +10,14 @@ import Testing
 extension RobotsTxtServiceTests {
   @Suite("RobotsTxtService Network Mocking Tests", .serialized, .tags(.networkMock))
   final class NetworkMocking {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Network request uses injected URLSession")

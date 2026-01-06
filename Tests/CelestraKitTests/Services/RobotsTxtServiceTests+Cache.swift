@@ -10,13 +10,14 @@ import Testing
 extension RobotsTxtServiceTests {
   @Suite("RobotsTxtService Cache Tests", .serialized, .tags(.networkMock))
   final class Cache {
-    init() {
-      mockURLProtocolSemaphore.wait()
+    init() async {
+      await mockURLProtocolCoordinator.acquire()
     }
 
     deinit {
-      MockURLProtocol.requestHandler = nil
-      mockURLProtocolSemaphore.signal()
+      Task {
+        await mockURLProtocolCoordinator.release()
+      }
     }
 
     @Test("Cache stores and retrieves rules")
