@@ -1,10 +1,32 @@
-// Article.swift
-// CelestraKit
 //
-// Created for Celestra on 2025-12-06.
+//  Article.swift
+//  CelestraKit
+//
+//  Created by Leo Dion.
+//  Copyright © 2025 BrightDigit.
+//
+//  Permission is hereby granted, free of charge, to any person
+//  obtaining a copy of this software and associated documentation
+//  files (the "Software"), to deal in the Software without
+//  restriction, including without limitation the rights to use,
+//  copy, modify, merge, publish, distribute, sublicense, and/or
+//  sell copies of the Software, and to permit persons to whom the
+//  Software is furnished to do so, subject to the following
+//  conditions:
+//
+//  The above copyright notice and this permission notice shall be
+//  included in all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+//  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+//  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+//  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-public import Crypto
 public import Foundation
 
 /// Represents an RSS article in CloudKit's public database
@@ -52,7 +74,7 @@ public struct Article: Sendable, Codable, Hashable, Identifiable {
   /// When article expires from cache (TTL)
   public let expiresAt: Date
 
-  /// SHA-256 content hash for deduplication
+  /// Composite key (title|url|guid) for deduplication
   public let contentHash: String
 
   /// Word count for reading time estimation
@@ -124,18 +146,27 @@ public struct Article: Sendable, Codable, Hashable, Identifiable {
 
   // MARK: - Helpers
 
-  /// Calculate SHA-256 content hash for deduplication
+  /// Calculate content hash for deduplication using composite key
   public static func calculateContentHash(title: String, url: String, guid: String) -> String {
-    let content = "\(title)|\(url)|\(guid)"
-    let data = Data(content.utf8)
-    let hash = SHA256.hash(data: data)
-    return hash.compactMap { String(format: "%02x", $0) }.joined()
+    "\(title)|\(url)|\(guid)"
   }
 
   /// Extract plain text from HTML content
+  ///
+  /// - Warning: **Security Notice (v0.0.1)**: This implementation uses regex-based HTML parsing
+  ///   which is NOT production-ready. Known limitations:
+  ///   - Potential ReDoS vulnerabilities with maliciously crafted HTML
+  ///   - Does not handle all HTML edge cases correctly
+  ///   - Only decodes a limited set of HTML entities
+  ///
+  /// - Note: **Planned for v0.1.0**: Replace with proper HTML parser library
+  ///   (e.g., SwiftSoup or XMLCoder with HTML support)
+  ///
+  /// - Parameter html: HTML string to convert to plain text
+  /// - Returns: Plain text with HTML tags removed, or nil if input is nil
   public static func extractPlainText(from html: String?) -> String? {
     guard let html = html else { return nil }
-    // Simple HTML tag removal (use proper HTML parser in production)
+    // TODO: Replace with proper HTML parser in v0.1.0
     let withoutTags = html.replacingOccurrences(
       of: "<[^>]+>", with: "", options: .regularExpression)
     let decoded =
