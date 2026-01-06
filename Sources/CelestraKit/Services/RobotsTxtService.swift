@@ -39,34 +39,6 @@ public actor RobotsTxtService {
   private let userAgent: UserAgent
   private let urlSession: URLSession
 
-  /// Represents parsed robots.txt rules for a domain
-  public struct RobotsRules {
-    public let disallowedPaths: [String]
-    public let crawlDelay: TimeInterval?
-    public let fetchedAt: Date
-
-    /// Check if a given path is allowed
-    public func isAllowed(_ path: String) -> Bool {
-      // If no disallow rules, everything is allowed
-      guard !disallowedPaths.isEmpty else {
-        return true
-      }
-
-      // Check if path matches any disallow rule
-      for disallowedPath in disallowedPaths where path.hasPrefix(disallowedPath) {
-        return false
-      }
-
-      return true
-    }
-
-    public init(disallowedPaths: [String], crawlDelay: TimeInterval?, fetchedAt: Date) {
-      self.disallowedPaths = disallowedPaths
-      self.crawlDelay = crawlDelay
-      self.fetchedAt = fetchedAt
-    }
-  }
-
   public init(
     userAgent: UserAgent,
     configuration: URLSessionConfiguration = .default

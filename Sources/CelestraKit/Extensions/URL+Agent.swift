@@ -1,5 +1,5 @@
 //
-//  FeedFormat.swift
+//  URL+Agent.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -29,12 +29,20 @@
 
 import Foundation
 
-/// Feed format detection results
-public enum FeedFormat: Sendable, Codable, CaseIterable {
-  case rss
-  case atom
-  case jsonFeed
-  case podcast
-  case youTube
-  case unknown
+extension URL {
+  internal enum Agent {
+    static let cloud: URL = {
+      guard let url = URL(string: "https://github.com/brightdigit/CelestraCloud") else {
+        preconditionFailure("Invalid URL for cloud agent")
+      }
+      return url
+    }()
+
+    static let app: URL = {
+      guard let url = URL(string: "https://celestr.app") else {
+        preconditionFailure("Invalid URL for app agent")
+      }
+      return url
+    }()
+  }
 }

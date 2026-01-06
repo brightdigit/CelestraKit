@@ -33,12 +33,6 @@ public import Foundation
   public import FoundationNetworking
 #endif
 
-/// HTTP client errors
-public enum HTTPClientError: Error {
-  case invalidResponse
-  case httpError(statusCode: Int)
-}
-
 /// URLSession-based HTTP client implementation
 ///
 /// - Note: Conditional compilation ensures cross-platform compatibility

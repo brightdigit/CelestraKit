@@ -12,7 +12,7 @@ extension RobotsTxtServiceTests {
   internal static func testParseContent(
     _ service: RobotsTxtService,
     content: String
-  ) async -> RobotsTxtService.RobotsRules {
+  ) async -> RobotsRules {
     // Since parseRobotsTxt is private, we'll create a test helper
     // In a real implementation, you might want to make parseRobotsTxt internal for testing
     // For now, we'll test through the public API or use a workaround
@@ -60,7 +60,7 @@ extension RobotsTxtServiceTests {
       }
     }
 
-    return RobotsTxtService.RobotsRules(
+    return RobotsRules(
       disallowedPaths: disallowedPaths,
       crawlDelay: crawlDelay,
       fetchedAt: Date()

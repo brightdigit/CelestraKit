@@ -62,7 +62,7 @@ extension RobotsTxtServiceTests {
 
     @Test("RobotsRules isAllowed checks path prefixes")
     func testIsAllowedPathMatching() {
-      let rules = RobotsTxtService.RobotsRules(
+      let rules = RobotsRules(
         disallowedPaths: ["/api/", "/admin"],
         crawlDelay: nil,
         fetchedAt: Date()
@@ -84,7 +84,7 @@ extension RobotsTxtServiceTests {
 
     @Test("RobotsRules allows everything when no disallow rules")
     func testIsAllowedEmptyDisallowList() {
-      let rules = RobotsTxtService.RobotsRules(
+      let rules = RobotsRules(
         disallowedPaths: [],
         crawlDelay: nil,
         fetchedAt: Date()

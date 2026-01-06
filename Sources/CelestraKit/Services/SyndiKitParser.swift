@@ -28,7 +28,7 @@
 //
 
 public import Foundation
-@preconcurrency import SyndiKit
+import SyndiKit
 
 #if canImport(CryptoKit)
   import CryptoKit
