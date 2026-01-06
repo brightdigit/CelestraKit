@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  HTTPClientError.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -28,13 +28,9 @@
 //
 
 import Foundation
-import Testing
 
-@testable import CelestraKit
-
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+/// HTTP client errors
+public enum HTTPClientError: Error {
+  case invalidResponse
+  case httpError(statusCode: Int)
+}

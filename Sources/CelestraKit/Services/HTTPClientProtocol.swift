@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  HTTPClientProtocol.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -27,14 +27,13 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
-import Testing
+public import Foundation
 
-@testable import CelestraKit
-
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+/// Protocol for HTTP client operations
+public protocol HTTPClientProtocol: Sendable {
+  /// Fetches data from a URL
+  /// - Parameter url: The URL to fetch from
+  /// - Returns: The fetched data
+  /// - Throws: Network or HTTP errors
+  func fetch(url: URL) async throws -> Data
+}

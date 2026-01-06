@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  URL+Agent.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -28,13 +28,21 @@
 //
 
 import Foundation
-import Testing
 
-@testable import CelestraKit
+extension URL {
+  internal enum Agent {
+    static let cloud: URL = {
+      guard let url = URL(string: "https://github.com/brightdigit/CelestraCloud") else {
+        preconditionFailure("Invalid URL for cloud agent")
+      }
+      return url
+    }()
 
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+    static let app: URL = {
+      guard let url = URL(string: "https://celestr.app") else {
+        preconditionFailure("Invalid URL for app agent")
+      }
+      return url
+    }()
+  }
+}

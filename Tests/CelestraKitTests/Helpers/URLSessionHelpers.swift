@@ -39,9 +39,30 @@ private let mockURLProtocolRegistration: Void = {
   URLProtocol.registerClass(MockURLProtocol.self)
 }()
 
-/// Semaphore to serialize test suites using MockURLProtocol
+/// Actor-based coordinator for serializing test suite access to MockURLProtocol
 /// Prevents concurrent test suites from interfering with each other's mock handlers
-internal let mockURLProtocolSemaphore = DispatchSemaphore(value: 1)
+/// Uses non-blocking async/await to avoid thread deadlocks
+internal actor MockURLProtocolCoordinator {
+  private var isLocked = false
+
+  /// Acquire exclusive access to MockURLProtocol.requestHandler
+  /// Suspends (non-blocking) until lock is available
+  func acquire() async {
+    while isLocked {
+      await Task.yield()
+    }
+    isLocked = true
+  }
+
+  /// Release exclusive access and clear MockURLProtocol.requestHandler
+  func release() {
+    MockURLProtocol.requestHandler = nil
+    isLocked = false
+  }
+}
+
+/// Global coordinator instance for test suite serialization
+internal let mockURLProtocolCoordinator = MockURLProtocolCoordinator()
 
 /// Tag for tests that use network mocking
 extension Tag {

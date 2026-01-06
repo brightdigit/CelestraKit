@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  FeedCategory.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -28,13 +28,28 @@
 //
 
 import Foundation
-import Testing
 
-@testable import CelestraKit
+/// Feed categories for organization
+public enum FeedCategory: String, CaseIterable, Sendable {
+  case general = "General"
+  case technology = "Technology"
+  case design = "Design"
+  case business = "Business"
+  case news = "News"
+  case entertainment = "Entertainment"
+  case science = "Science"
+  case health = "Health"
 
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+  public var icon: String {
+    switch self {
+    case .general: return "folder"
+    case .technology: return "cpu"
+    case .design: return "paintpalette"
+    case .business: return "chart.line.uptrend.xyaxis"
+    case .news: return "newspaper"
+    case .entertainment: return "tv"
+    case .science: return "atom"
+    case .health: return "heart"
+    }
+  }
+}

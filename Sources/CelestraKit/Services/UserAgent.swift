@@ -27,7 +27,7 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-public import Foundation
+import Foundation
 
 public struct UserAgent: Sendable {
   private enum Names {
@@ -55,23 +55,5 @@ public struct UserAgent: Sendable {
 
   public var string: String {
     "\(name)/\(build) (\(url))"
-  }
-}
-
-extension URL {
-  fileprivate enum Agent {
-    static let cloud: URL = {
-      guard let url = URL(string: "https://github.com/brightdigit/CelestraCloud") else {
-        preconditionFailure("Invalid URL for cloud agent")
-      }
-      return url
-    }()
-
-    static let app: URL = {
-      guard let url = URL(string: "https://celestr.app") else {
-        preconditionFailure("Invalid URL for app agent")
-      }
-      return url
-    }()
   }
 }

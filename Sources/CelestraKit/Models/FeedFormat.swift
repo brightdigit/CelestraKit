@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  FeedFormat.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -28,13 +28,13 @@
 //
 
 import Foundation
-import Testing
 
-@testable import CelestraKit
-
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+/// Feed format detection results
+public enum FeedFormat: Sendable, Codable, CaseIterable {
+  case rss
+  case atom
+  case jsonFeed
+  case podcast
+  case youTube
+  case unknown
+}

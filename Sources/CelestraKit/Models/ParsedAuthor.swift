@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  ParsedAuthor.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -27,14 +27,17 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
-import Testing
+public import Foundation
 
-@testable import CelestraKit
+/// Author information normalized from feed data
+public struct ParsedAuthor: Sendable, Codable {
+  public let name: String
+  public let email: String?
+  public let url: URL?
 
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+  public init(name: String, email: String? = nil, url: URL? = nil) {
+    self.name = name
+    self.email = email
+    self.url = url
+  }
+}

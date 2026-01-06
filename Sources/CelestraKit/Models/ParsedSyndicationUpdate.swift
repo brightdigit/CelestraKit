@@ -1,5 +1,5 @@
 //
-//  RSSFetcherServiceTests.swift
+//  ParsedSyndicationUpdate.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
@@ -27,14 +27,17 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
-import Testing
+public import Foundation
 
-@testable import CelestraKit
+/// Syndication update information
+public struct ParsedSyndicationUpdate: Sendable, Codable {
+  public let period: String?
+  public let frequency: Int?
+  public let base: Date?
 
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// Namespace for RSSFetcherService tests
-internal enum RSSFetcherServiceTests {}
+  public init(period: String? = nil, frequency: Int? = nil, base: Date? = nil) {
+    self.period = period
+    self.frequency = frequency
+    self.base = base
+  }
+}
