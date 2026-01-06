@@ -1,8 +1,9 @@
 name: CelestraKit
 on:
   push:
-    branches-ignore:
-      - '*WIP'
+    branches:
+      - main
+  pull_request:
 env:
   PACKAGE_NAME: CelestraKit
 jobs:
