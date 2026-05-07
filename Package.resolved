@@ -1,13 +1,13 @@
 {
-  "originHash" : "67ad400628d4a624266ca1a897f50beb4de8e0d3f2b03f9449639db5ff5baee3",
+  "originHash" : "81dfb1f409d36235faebcfefd9ab8b6350f67d768ef3f053a0397f0dc36d543a",
   "pins" : [
     {
       "identity" : "swift-asn1",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-asn1.git",
       "state" : {
-        "revision" : "810496cf121e525d660cd0ea89a758740476b85f",
-        "version" : "1.5.1"
+        "revision" : "eb50cbd14606a9161cbc5d452f18797c90ef0bab",
+        "version" : "1.7.0"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "95ba0316a9b733e92bb6b071255ff46263bbe7dc",
-        "version" : "3.15.1"
+        "revision" : "1b6b2e274e85105bfa155183145a1dcfd63331f1",
+        "version" : "4.5.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "bc386b95f2a16ccd0150a8235e7c69eab2b866ca",
-        "version" : "1.8.0"
+        "revision" : "5073617dac96330a486245e4c0179cb0a6fd2256",
+        "version" : "1.12.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/brightdigit/SyndiKit.git",
       "state" : {
-        "revision" : "f6f9cc8d1c905e67e66ba2822dd30299ead26867",
-        "version" : "0.8.0"
+        "revision" : "bf0315dc6f9a3d72bdf66bb726b86e3ebab6e9ea",
+        "version" : "0.8.1"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/CoreOffice/XMLCoder",
       "state" : {
-        "revision" : "5e1ada828d2618ecb79c974e03f79c8f4df90b71",
-        "version" : "0.18.0"
+        "revision" : "b2b5d72345bab9e1938a483cf862b498aeed3796",
+        "version" : "0.18.1"
       }
     }
   ],
