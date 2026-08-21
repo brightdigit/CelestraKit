@@ -43,8 +43,11 @@ swift package update
 # Resolve dependencies
 swift package resolve
 
-# Generate Xcode project (if needed)
-swift package generate-xcodeproj
+# Open in Xcode (SwiftPM has no generate-xcodeproj command; open the manifest directly)
+xed Package.swift
+
+# Build/test with xcodebuild (e.g. for simulator destinations)
+xcodebuild -list
 ```
 
 ## Architecture
@@ -59,7 +62,8 @@ swift package generate-xcodeproj
     - `RobotsTxtService.swift`: robots.txt parsing and caching
 
 ### Key Dependencies
-- **SyndiKit** (v0.6.1): RSS/Atom feed parsing
+- **SyndiKit** (from v0.8.0): RSS/Atom feed parsing
+- **swift-crypto** (from v4.0.0): SHA256 hashing on non-Apple platforms (`CryptoKit` is used on Apple platforms)
 
 ### Swift Language Configuration
 
@@ -93,7 +97,7 @@ This project uses **Swift 6.2** with strict concurrency checking and many experi
 - Use `Sendable` for types that cross concurrency boundaries
 - Use `public import` instead of `import` for re-exported dependencies
 - Follow strict concurrency checking (no implicit Sendable conformances)
-- Avoid long functions (>100 lines) and complex type checking expressions
+- Avoid long functions (>100 lines) and complex type-checking expressions
 
 ### Data Models
 
