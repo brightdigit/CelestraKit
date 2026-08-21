@@ -38,8 +38,8 @@ import Testing
 
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService Error Cases Tests", .serialized, .tags(.networkMock))
-  final class Errors {
-    init() async {
+  internal final class Errors {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -50,7 +50,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Throw error on invalid feed data")
-    func throwErrorOnInvalidFeedData() async throws {
+    internal func throwErrorOnInvalidFeedData() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/invalid-rss.xml")
 
@@ -71,7 +71,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Throw error on network failure")
-    func throwErrorOnNetworkFailure() async throws {
+    internal func throwErrorOnNetworkFailure() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
 
       MockURLProtocol.requestHandler = { _ in
@@ -87,7 +87,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Throw error on HTTP error status codes")
-    func throwErrorOnHTTPErrorStatus() async throws {
+    internal func throwErrorOnHTTPErrorStatus() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
 
       for statusCode in [400, 404, 500, 503] {

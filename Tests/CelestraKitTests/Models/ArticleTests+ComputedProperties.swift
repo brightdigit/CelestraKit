@@ -7,7 +7,7 @@ extension ArticleTests {
   @Suite("Article Computed Properties Tests")
   internal struct ComputedProperties {
     @Test("ID composition from recordName and guid when recordName exists")
-    func idWithRecordName() async throws {
+    internal func idWithRecordName() async throws {
       let article = Article(
         recordName: "record123",
         feedRecordName: "feed123",
@@ -20,7 +20,7 @@ extension ArticleTests {
     }
 
     @Test("ID composition from feedRecordName and guid when recordName is nil")
-    func idWithoutRecordName() async throws {
+    internal func idWithoutRecordName() async throws {
       let article = Article(
         recordName: nil,
         feedRecordName: "feed123",
@@ -33,7 +33,7 @@ extension ArticleTests {
     }
 
     @Test("isExpired returns true for past expiresAt")
-    func isExpiredPastDate() async throws {
+    internal func isExpiredPastDate() async throws {
       let pastDate = Date().addingTimeInterval(-3_600)  // 1 hour ago
       let article = Article(
         feedRecordName: "feed123",
@@ -48,7 +48,7 @@ extension ArticleTests {
     }
 
     @Test("isExpired returns false for future expiresAt")
-    func isExpiredFutureDate() async throws {
+    internal func isExpiredFutureDate() async throws {
       let now = Date()
       let article = Article(
         feedRecordName: "feed123",
@@ -63,7 +63,7 @@ extension ArticleTests {
     }
 
     @Test("isExpired boundary test")
-    func isExpiredBoundary() async throws {
+    internal func isExpiredBoundary() async throws {
       let now = Date()
       // Set expiration to exactly now (technically expired)
       let article = Article(

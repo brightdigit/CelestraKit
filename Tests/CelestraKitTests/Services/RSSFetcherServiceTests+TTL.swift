@@ -38,8 +38,8 @@ import Testing
 
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService parseUpdateInterval() - TTL Tests", .serialized, .tags(.networkMock))
-  final class TTL {
-    init() async {
+  internal final class TTL {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -50,7 +50,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Parse RSS TTL correctly")
-    func parseRSSTTL() async throws {
+    internal func parseRSSTTL() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-ttl.xml")
 

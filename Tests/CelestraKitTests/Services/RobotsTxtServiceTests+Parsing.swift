@@ -9,8 +9,8 @@ import Testing
 
 extension RobotsTxtServiceTests {
   @Suite("RobotsTxtService Parsing Tests", .serialized, .tags(.networkMock))
-  final class Parsing {
-    init() async {
+  internal final class Parsing {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -21,7 +21,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Parse robots.txt with wildcard user-agent")
-    func testParseRobotsTxtWithWildcardUserAgent() async {
+    internal func testParseRobotsTxtWithWildcardUserAgent() async {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       let content = """
@@ -40,7 +40,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Parse robots.txt with specific user-agent")
-    func testParseRobotsTxtWithSpecificUserAgent() async throws {
+    internal func testParseRobotsTxtWithSpecificUserAgent() async throws {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       let content = """
@@ -62,7 +62,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("RobotsRules isAllowed checks path prefixes")
-    func testIsAllowedPathMatching() {
+    internal func testIsAllowedPathMatching() {
       let rules = RobotsRules(
         disallowedPaths: ["/api/", "/admin"],
         crawlDelay: nil,
@@ -84,7 +84,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("RobotsRules allows everything when no disallow rules")
-    func testIsAllowedEmptyDisallowList() {
+    internal func testIsAllowedEmptyDisallowList() {
       let rules = RobotsRules(
         disallowedPaths: [],
         crawlDelay: nil,
@@ -98,7 +98,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Parse robots.txt handles empty and comment lines")
-    func testParseRobotsTxtWithCommentsAndEmptyLines() async {
+    internal func testParseRobotsTxtWithCommentsAndEmptyLines() async {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       let content = """
@@ -119,7 +119,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Parse robots.txt handles case-insensitive directives")
-    func testParseRobotsTxtCaseInsensitive() async {
+    internal func testParseRobotsTxtCaseInsensitive() async {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       let content = """
@@ -136,7 +136,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Parse robots.txt with multiple user-agents using wildcard")
-    func testParseRobotsTxtMultipleUserAgents() async {
+    internal func testParseRobotsTxtMultipleUserAgents() async {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       let content = """

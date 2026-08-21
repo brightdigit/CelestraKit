@@ -5,11 +5,11 @@ import Testing
 
 /// Integration tests for CelestraKit models and package functionality
 @Suite("Integration Tests")
-struct IntegrationTests {
+internal struct IntegrationTests {
   // MARK: - Feed-Article Relationship Tests
 
   @Test("Feed and Article relationship via feedRecordName linkage")
-  func feedArticleLinkage() async throws {
+  internal func feedArticleLinkage() async throws {
     let feed = Feed(
       recordName: "feed-record-123",
       feedURL: "https://example.com/feed.xml",
@@ -29,7 +29,7 @@ struct IntegrationTests {
   }
 
   @Test("Multiple articles from same feed scenario")
-  func multipleArticlesFromSameFeed() async throws {
+  internal func multipleArticlesFromSameFeed() async throws {
     let feedRecordName = "feed-record-123"
 
     let article1 = Article(
@@ -71,7 +71,7 @@ struct IntegrationTests {
   // MARK: - Cache Expiration Tests
 
   @Test("Cache expiration workflow with TTL boundary testing")
-  func cacheExpirationWorkflow() async throws {
+  internal func cacheExpirationWorkflow() async throws {
     let now = Date()
 
     // Fresh article (just fetched, 30 day TTL)
@@ -110,7 +110,7 @@ struct IntegrationTests {
   }
 
   @Test("Cache expiration with different TTL values")
-  func cacheExpirationDifferentTTLs() async throws {
+  internal func cacheExpirationDifferentTTLs() async throws {
     let fetchTime = Date()
 
     // Short TTL (1 day)
@@ -152,7 +152,7 @@ struct IntegrationTests {
   // MARK: - Deduplication Tests
 
   @Test("Content hash deduplication across different feeds")
-  func deduplicationAcrossFeeds() async throws {
+  internal func deduplicationAcrossFeeds() async throws {
     // Same article published in two different feeds
     let article1 = Article(
       feedRecordName: "feed-tech",
@@ -174,7 +174,7 @@ struct IntegrationTests {
   }
 
   @Test("Deduplication distinguishes similar but different articles")
-  func deduplicationDistinguishesArticles() async throws {
+  internal func deduplicationDistinguishesArticles() async throws {
     // Very similar articles but with slight differences
     let article1 = Article(
       feedRecordName: "feed123",
@@ -206,7 +206,7 @@ struct IntegrationTests {
   // MARK: - Feed Health and Article Expiration Combined
 
   @Test("Feed health correlates with article freshness scenario")
-  func feedHealthAndArticleFreshness() async throws {
+  internal func feedHealthAndArticleFreshness() async throws {
     let now = Date()
 
     // Healthy feed with high success rate

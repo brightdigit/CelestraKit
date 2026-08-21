@@ -38,8 +38,8 @@ import Testing
 
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService Item Filtering Tests", .serialized, .tags(.networkMock))
-  final class ItemFiltering {
-    init() async {
+  internal final class ItemFiltering {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -56,7 +56,7 @@ extension RSSFetcherServiceTests {
     @Test(
       "All items have valid links", .disabled("SyndiKit doesn't parse RSS with empty link elements")
     )
-    func filterItemsWithEmptyLinks() async throws {
+    internal func filterItemsWithEmptyLinks() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-empty-link-items.xml")
 

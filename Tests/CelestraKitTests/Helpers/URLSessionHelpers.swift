@@ -47,7 +47,7 @@ internal actor MockURLProtocolCoordinator {
 
   /// Acquire exclusive access to MockURLProtocol.requestHandler
   /// Suspends (non-blocking) until lock is available
-  func acquire() async {
+  internal func acquire() async {
     while isLocked {
       await Task.yield()
     }
@@ -55,7 +55,7 @@ internal actor MockURLProtocolCoordinator {
   }
 
   /// Release exclusive access and clear MockURLProtocol.requestHandler
-  func release() {
+  internal func release() {
     MockURLProtocol.requestHandler = nil
     isLocked = false
   }
@@ -66,7 +66,7 @@ internal let mockURLProtocolCoordinator = MockURLProtocolCoordinator()
 
 /// Tag for tests that use network mocking
 extension Tag {
-  @Tag static var networkMock: Self
+  @Tag internal static var networkMock: Self
 }
 
 /// Creates a URLSession configured to use MockURLProtocol

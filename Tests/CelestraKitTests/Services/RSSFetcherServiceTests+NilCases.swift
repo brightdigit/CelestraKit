@@ -39,8 +39,8 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite(
     "RSSFetcherService parseUpdateInterval() - Nil Cases Tests", .serialized, .tags(.networkMock))
-  final class NilCases {
-    init() async {
+  internal final class NilCases {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -51,7 +51,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Atom feeds return nil update interval")
-    func atomFeedsReturnNilInterval() async throws {
+    internal func atomFeedsReturnNilInterval() async throws {
       let feedURL = URL(string: "https://example.com/atom.xml")!
       let mockData = try FixtureLoader.load("Atom/basic-atom.xml")
 
@@ -72,7 +72,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("RSS feed without TTL or syndication returns nil")
-    func rssFeedWithoutUpdateInfoReturnsNil() async throws {
+    internal func rssFeedWithoutUpdateInfoReturnsNil() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/basic-rss.xml")
 

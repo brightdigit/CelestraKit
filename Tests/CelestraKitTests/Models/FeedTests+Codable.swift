@@ -7,7 +7,7 @@ extension FeedTests {
   @Suite("Feed Codable Tests")
   internal struct Codable {
     @Test("Encode and decode round-trip preserves all data")
-    func codableRoundTrip() async throws {
+    internal func codableRoundTrip() async throws {
       let now = Date()
       let original = Feed(
         recordName: "record123",
@@ -52,7 +52,7 @@ extension FeedTests {
     }
 
     @Test("Decode with missing optional fields succeeds")
-    func decodeMissingOptionals() async throws {
+    internal func decodeMissingOptionals() async throws {
       let json = """
         {
           "feedURL": "https://example.com/feed.xml",
@@ -81,7 +81,7 @@ extension FeedTests {
     }
 
     @Test("Encode includes all required fields")
-    func encodeIncludesRequiredFields() async throws {
+    internal func encodeIncludesRequiredFields() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Test Feed"
@@ -98,7 +98,7 @@ extension FeedTests {
     }
 
     @Test("Date fields encode and decode correctly")
-    func dateFieldsEncodeDecodeCorrectly() async throws {
+    internal func dateFieldsEncodeDecodeCorrectly() async throws {
       let now = Date()
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",

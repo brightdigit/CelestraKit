@@ -38,9 +38,9 @@ import Testing
 #endif
 
 @Suite("SyndiKit Element Parsing Tests", .serialized)
-final class SyndiKitElementTests {
+internal final class SyndiKitElementTests {
   @Test("Parse RSS with comprehensive elements")
-  func parseComprehensiveRSS() async throws {
+  internal func parseComprehensiveRSS() async throws {
     let mockData = try FixtureLoader.load("RSS/rss-comprehensive-elements.xml")
 
     let decoder = SynDecoder()
@@ -105,7 +105,7 @@ final class SyndiKitElementTests {
   }
 
   @Test("Verify author parsing behavior")
-  func verifyAuthorParsing() async throws {
+  internal func verifyAuthorParsing() async throws {
     let mockData = try FixtureLoader.load("RSS/rss-comprehensive-elements.xml")
 
     let decoder = SynDecoder()
@@ -146,7 +146,7 @@ final class SyndiKitElementTests {
   }
 
   @Test("Verify enclosure/media parsing")
-  func verifyEnclosureParsing() async throws {
+  internal func verifyEnclosureParsing() async throws {
     let mockData = try FixtureLoader.load("RSS/rss-comprehensive-elements.xml")
 
     let decoder = SynDecoder()
@@ -173,7 +173,7 @@ final class SyndiKitElementTests {
   }
 
   @Test("Verify category parsing")
-  func verifyCategoryParsing() async throws {
+  internal func verifyCategoryParsing() async throws {
     let mockData = try FixtureLoader.load("RSS/rss-comprehensive-elements.xml")
 
     let decoder = SynDecoder()

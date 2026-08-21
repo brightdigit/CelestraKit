@@ -7,7 +7,7 @@ extension FeedTests {
   @Suite("Feed Hashable/Equatable Tests")
   internal struct Equatable {
     @Test("Equal feeds have same hash")
-    func equalFeedsSameHash() async throws {
+    internal func equalFeedsSameHash() async throws {
       let now = Date()
       let feed1 = Feed(
         feedURL: "https://example.com/feed.xml",
@@ -25,7 +25,7 @@ extension FeedTests {
     }
 
     @Test("Different feeds have different hash values")
-    func differentFeedsDifferentHash() async throws {
+    internal func differentFeedsDifferentHash() async throws {
       let feed1 = Feed(
         feedURL: "https://example.com/feed1.xml",
         title: "Feed 1"
@@ -40,7 +40,7 @@ extension FeedTests {
     }
 
     @Test("Feeds with same feedURL but different data are not equal")
-    func sameFeedURLDifferentData() async throws {
+    internal func sameFeedURLDifferentData() async throws {
       let feed1 = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Feed 1"

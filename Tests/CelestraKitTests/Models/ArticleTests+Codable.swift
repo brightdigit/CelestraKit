@@ -7,7 +7,7 @@ extension ArticleTests {
   @Suite("Article Codable Tests")
   internal struct Codable {
     @Test("Round-trip encoding and decoding preserves all data")
-    func codableRoundTrip() async throws {
+    internal func codableRoundTrip() async throws {
       let now = Date()
       let original = Article(
         recordName: "record123",
@@ -45,7 +45,7 @@ extension ArticleTests {
     }
 
     @Test("Date and TimeInterval fields encode correctly")
-    func dateFieldsEncode() async throws {
+    internal func dateFieldsEncode() async throws {
       let now = Date()
       let article = Article(
         feedRecordName: "feed123",
@@ -69,7 +69,7 @@ extension ArticleTests {
     }
 
     @Test("Optional fields handled correctly in encoding")
-    func optionalFieldsEncoding() async throws {
+    internal func optionalFieldsEncoding() async throws {
       let article = Article(
         feedRecordName: "feed123",
         guid: "article-guid-1",
@@ -94,7 +94,7 @@ extension ArticleTests {
     }
 
     @Test("contentHash preserved through encoding")
-    func contentHashPreserved() async throws {
+    internal func contentHashPreserved() async throws {
       let article = Article(
         feedRecordName: "feed123",
         guid: "article-guid-1",

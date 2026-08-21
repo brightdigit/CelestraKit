@@ -32,32 +32,32 @@ import Testing
 @testable import CelestraKit
 
 @Suite("UserAgent Tests")
-struct UserAgentTests {
+internal struct UserAgentTests {
   // MARK: - Factory Method Tests
 
   @Test("Cloud factory method creates UserAgent instance")
-  func cloudFactoryCreatesInstance() {
+  internal func cloudFactoryCreatesInstance() {
     let userAgent = UserAgent.cloud(build: 1)
 
     #expect(userAgent.name == "CelestraCloud")
   }
 
   @Test("App factory method creates UserAgent instance")
-  func appFactoryCreatesInstance() {
+  internal func appFactoryCreatesInstance() {
     let userAgent = UserAgent.app(build: 1)
 
     #expect(userAgent.name == "Celestra")
   }
 
   @Test("Cloud factory sets correct name")
-  func cloudFactorySetsCorrectName() {
+  internal func cloudFactorySetsCorrectName() {
     let userAgent = UserAgent.cloud(build: 42)
 
     #expect(userAgent.name == "CelestraCloud")
   }
 
   @Test("App factory sets correct name")
-  func appFactorySetsCorrectName() {
+  internal func appFactorySetsCorrectName() {
     let userAgent = UserAgent.app(build: 42)
 
     #expect(userAgent.name == "Celestra")
@@ -66,28 +66,28 @@ struct UserAgentTests {
   // MARK: - Property Tests
 
   @Test("Cloud user-agent has CelestraCloud name")
-  func cloudUserAgentHasCorrectName() {
+  internal func cloudUserAgentHasCorrectName() {
     let userAgent = UserAgent.cloud(build: 1)
 
     #expect(userAgent.name == "CelestraCloud")
   }
 
   @Test("App user-agent has Celestra name")
-  func appUserAgentHasCorrectName() {
+  internal func appUserAgentHasCorrectName() {
     let userAgent = UserAgent.app(build: 1)
 
     #expect(userAgent.name == "Celestra")
   }
 
   @Test("Cloud user-agent has correct URL")
-  func cloudUserAgentHasCorrectURL() {
+  internal func cloudUserAgentHasCorrectURL() {
     let userAgent = UserAgent.cloud(build: 1)
 
     #expect(userAgent.string.contains("https://github.com/brightdigit/CelestraCloud"))
   }
 
   @Test("App user-agent has correct URL")
-  func appUserAgentHasCorrectURL() {
+  internal func appUserAgentHasCorrectURL() {
     let userAgent = UserAgent.app(build: 1)
 
     #expect(userAgent.string.contains("https://celestr.app"))
@@ -96,21 +96,21 @@ struct UserAgentTests {
   // MARK: - String Generation Tests
 
   @Test("Cloud user-agent string format is correct")
-  func cloudUserAgentStringFormat() {
+  internal func cloudUserAgentStringFormat() {
     let userAgent = UserAgent.cloud(build: 1)
 
     #expect(userAgent.string == "CelestraCloud/1 (https://github.com/brightdigit/CelestraCloud)")
   }
 
   @Test("App user-agent string format is correct")
-  func appUserAgentStringFormat() {
+  internal func appUserAgentStringFormat() {
     let userAgent = UserAgent.app(build: 1)
 
     #expect(userAgent.string == "Celestra/1 (https://celestr.app)")
   }
 
   @Test("User-agent string includes name component")
-  func userAgentStringIncludesName() {
+  internal func userAgentStringIncludesName() {
     let cloudAgent = UserAgent.cloud(build: 5)
     let appAgent = UserAgent.app(build: 5)
 
@@ -119,14 +119,14 @@ struct UserAgentTests {
   }
 
   @Test("User-agent string includes build number")
-  func userAgentStringIncludesBuildNumber() {
+  internal func userAgentStringIncludesBuildNumber() {
     let userAgent = UserAgent.cloud(build: 42)
 
     #expect(userAgent.string.contains("/42"))
   }
 
   @Test("User-agent string format is consistent across multiple calls")
-  func userAgentStringFormatConsistency() {
+  internal func userAgentStringFormatConsistency() {
     let userAgent = UserAgent.cloud(build: 1)
 
     let firstCall = userAgent.string
@@ -140,7 +140,7 @@ struct UserAgentTests {
   // MARK: - Edge Case Tests
 
   @Test("User-agent handles large build numbers")
-  func userAgentHandlesLargeBuildNumbers() {
+  internal func userAgentHandlesLargeBuildNumbers() {
     let userAgent = UserAgent.cloud(build: 999_999)
 
     #expect(
@@ -148,14 +148,14 @@ struct UserAgentTests {
   }
 
   @Test("User-agent handles build number zero")
-  func userAgentHandlesBuildNumberZero() {
+  internal func userAgentHandlesBuildNumberZero() {
     let userAgent = UserAgent.app(build: 0)
 
     #expect(userAgent.string == "Celestra/0 (https://celestr.app)")
   }
 
   @Test("User-agent string interpolation does not fail")
-  func userAgentStringInterpolationDoesNotFail() {
+  internal func userAgentStringInterpolationDoesNotFail() {
     let cloudAgent = UserAgent.cloud(build: 100)
     let appAgent = UserAgent.app(build: 200)
 

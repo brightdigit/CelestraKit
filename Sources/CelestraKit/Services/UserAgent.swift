@@ -42,8 +42,8 @@ public struct UserAgent: Sendable {
   }
 
   public let name: String
-  let build: Int
-  let url: URL
+  internal let build: Int
+  internal let url: URL
 
   public static func cloud(build: Int) -> UserAgent {
     .init(name: Names.cloud, build: build, url: .Agent.cloud)

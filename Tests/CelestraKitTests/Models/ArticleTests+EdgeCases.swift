@@ -7,7 +7,7 @@ extension ArticleTests {
   @Suite("Article Edge Cases Tests")
   internal struct EdgeCases {
     @Test("Very long content handling")
-    func veryLongContent() async throws {
+    internal func veryLongContent() async throws {
       let longContent = String(repeating: "word ", count: 10_000)
       let article = Article(
         feedRecordName: "feed123",
@@ -22,7 +22,7 @@ extension ArticleTests {
     }
 
     @Test("Special characters in content hash")
-    func specialCharactersInHash() async throws {
+    internal func specialCharactersInHash() async throws {
       let hash = Article.calculateContentHash(
         title: "Title with émojis 🚀 and ñ",
         url: "https://example.com/article?param=value&other=test",
@@ -35,7 +35,7 @@ extension ArticleTests {
     }
 
     @Test("Empty content text extraction")
-    func emptyContentExtraction() async throws {
+    internal func emptyContentExtraction() async throws {
       let article = Article(
         feedRecordName: "feed123",
         guid: "article-guid-1",

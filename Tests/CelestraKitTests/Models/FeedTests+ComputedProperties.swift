@@ -7,7 +7,7 @@ extension FeedTests {
   @Suite("Feed Computed Properties Tests")
   internal struct ComputedProperties {
     @Test("ID returns recordName when available")
-    func idReturnsRecordName() async throws {
+    internal func idReturnsRecordName() async throws {
       let feed = Feed(
         recordName: "record123",
         feedURL: "https://example.com/feed.xml",
@@ -18,7 +18,7 @@ extension FeedTests {
     }
 
     @Test("ID returns feedURL when recordName is nil")
-    func idReturnsFeedURL() async throws {
+    internal func idReturnsFeedURL() async throws {
       let feed = Feed(
         recordName: nil,
         feedURL: "https://example.com/feed.xml",
@@ -29,7 +29,7 @@ extension FeedTests {
     }
 
     @Test("Success rate with zero attempts returns 0.0")
-    func successRateZeroAttempts() async throws {
+    internal func successRateZeroAttempts() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Test Feed",
@@ -41,7 +41,7 @@ extension FeedTests {
     }
 
     @Test("Success rate with all successful attempts returns 1.0")
-    func successRateAllSuccessful() async throws {
+    internal func successRateAllSuccessful() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Test Feed",
@@ -53,7 +53,7 @@ extension FeedTests {
     }
 
     @Test("Success rate with partial success returns correct ratio")
-    func successRatePartialSuccess() async throws {
+    internal func successRatePartialSuccess() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Test Feed",
@@ -65,7 +65,7 @@ extension FeedTests {
     }
 
     @Test("isHealthy returns true when qualityScore >= 70")
-    func isHealthyHighQuality() async throws {
+    internal func isHealthyHighQuality() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Healthy Feed",
@@ -79,7 +79,7 @@ extension FeedTests {
     }
 
     @Test("isHealthy returns false when successRate is low")
-    func isHealthyLowSuccessRate() async throws {
+    internal func isHealthyLowSuccessRate() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Unhealthy Feed",
@@ -93,7 +93,7 @@ extension FeedTests {
     }
 
     @Test("isHealthy returns false when failureCount is high")
-    func isHealthyHighFailures() async throws {
+    internal func isHealthyHighFailures() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Failing Feed",

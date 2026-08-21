@@ -4,9 +4,9 @@ import Testing
 @testable import CelestraKit
 
 @Suite("RateLimiter Tests")
-struct RateLimiterTests {
+internal struct RateLimiterTests {
   @Test("First fetch has no delay")
-  func testFirstFetchNoDelay() async {
+  internal func testFirstFetchNoDelay() async {
     let limiter = RateLimiter(defaultDelay: 2.0, perDomainDelay: 5.0)
     let url = URL(string: "https://example.com/feed.xml")!
 
@@ -21,7 +21,7 @@ struct RateLimiterTests {
   // TODO: Investigate timing precision issues on iOS Simulator in CI
   // Tests pass locally but fail in CI due to timing precision differences
   @Test("Same domain applies per-domain delay", .disabled("Fails in CI on iOS Simulator"))
-  func testSameDomainPerDomainDelay() async {
+  internal func testSameDomainPerDomainDelay() async {
     let limiter = RateLimiter(defaultDelay: 0.1, perDomainDelay: 0.3)
     let url1 = URL(string: "https://example.com/feed1.xml")!
     let url2 = URL(string: "https://example.com/feed2.xml")!
@@ -40,7 +40,7 @@ struct RateLimiterTests {
   }
 
   @Test("Different domains use default delay")
-  func testDifferentDomainsDefaultDelay() async {
+  internal func testDifferentDomainsDefaultDelay() async {
     let limiter = RateLimiter(defaultDelay: 0.1, perDomainDelay: 0.5)
     let url1 = URL(string: "https://example.com/feed.xml")!
     let url2 = URL(string: "https://different.com/feed.xml")!
@@ -62,7 +62,7 @@ struct RateLimiterTests {
   // TODO: Investigate timing precision issues on iOS Simulator in CI
   // Tests pass locally but fail in CI due to timing precision differences
   @Test("Minimum interval is respected", .disabled("Fails in CI on iOS Simulator"))
-  func testMinimumIntervalRespected() async {
+  internal func testMinimumIntervalRespected() async {
     let limiter = RateLimiter(defaultDelay: 0.1, perDomainDelay: 0.2)
     let url = URL(string: "https://example.com/feed.xml")!
     let minInterval: TimeInterval = 0.4
@@ -81,7 +81,7 @@ struct RateLimiterTests {
   }
 
   @Test("Reset clears all history")
-  func testResetClearsHistory() async {
+  internal func testResetClearsHistory() async {
     let limiter = RateLimiter(defaultDelay: 0.2, perDomainDelay: 0.5)
     let url = URL(string: "https://example.com/feed.xml")!
 
@@ -100,7 +100,7 @@ struct RateLimiterTests {
   }
 
   @Test("Reset for specific host")
-  func testResetForSpecificHost() async {
+  internal func testResetForSpecificHost() async {
     let limiter = RateLimiter(defaultDelay: 0.1, perDomainDelay: 0.3)
     let url = URL(string: "https://example.com/feed.xml")!
 
@@ -119,7 +119,7 @@ struct RateLimiterTests {
   }
 
   @Test("URL without host is handled gracefully")
-  func testURLWithoutHost() async {
+  internal func testURLWithoutHost() async {
     let limiter = RateLimiter(defaultDelay: 0.2, perDomainDelay: 0.5)
     let url = URL(string: "/relative/path")!
 
@@ -134,7 +134,7 @@ struct RateLimiterTests {
   // TODO: Investigate timing precision issues on iOS Simulator in CI
   // Tests pass locally but fail in CI due to timing precision differences
   @Test("Global wait enforces delay across domains", .disabled("Fails in CI on iOS Simulator"))
-  func testWaitGlobalEnforcesDelay() async {
+  internal func testWaitGlobalEnforcesDelay() async {
     let limiter = RateLimiter(defaultDelay: 0.2, perDomainDelay: 0.5)
     let url1 = URL(string: "https://example.com/feed.xml")!
     let url2 = URL(string: "https://different.com/feed.xml")!
@@ -156,7 +156,7 @@ struct RateLimiterTests {
   }
 
   @Test("Concurrent access is safe (actor isolation)")
-  func testConcurrentAccessSafe() async {
+  internal func testConcurrentAccessSafe() async {
     let limiter = RateLimiter(defaultDelay: 0.05, perDomainDelay: 0.1)
     let url = URL(string: "https://example.com/feed.xml")!
 

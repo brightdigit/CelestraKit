@@ -7,7 +7,7 @@ extension FeedTests {
   @Suite("Feed Edge Cases Tests")
   internal struct EdgeCases {
     @Test("Very large attempt counts")
-    func veryLargeAttemptCounts() async throws {
+    internal func veryLargeAttemptCounts() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "High Volume Feed",
@@ -21,7 +21,7 @@ extension FeedTests {
     }
 
     @Test("Success rate calculation precision")
-    func successRatePrecision() async throws {
+    internal func successRatePrecision() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Test Feed",

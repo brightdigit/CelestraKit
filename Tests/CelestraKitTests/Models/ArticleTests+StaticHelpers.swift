@@ -7,7 +7,7 @@ extension ArticleTests {
   @Suite("Article Static Helper Method Tests")
   internal struct StaticHelpers {
     @Test("calculateContentHash produces consistent hash for same inputs")
-    func contentHashConsistency() async throws {
+    internal func contentHashConsistency() async throws {
       let hash1 = Article.calculateContentHash(
         title: "Test Article",
         url: "https://example.com/article1",
@@ -24,7 +24,7 @@ extension ArticleTests {
     }
 
     @Test("calculateContentHash produces different hash for different inputs")
-    func contentHashDifferentInputs() async throws {
+    internal func contentHashDifferentInputs() async throws {
       let hash1 = Article.calculateContentHash(
         title: "Test Article 1",
         url: "https://example.com/article1",
@@ -41,7 +41,7 @@ extension ArticleTests {
     }
 
     @Test("calculateContentHash handles empty strings")
-    func contentHashEmptyStrings() async throws {
+    internal func contentHashEmptyStrings() async throws {
       let hash = Article.calculateContentHash(
         title: "",
         url: "",
@@ -53,7 +53,7 @@ extension ArticleTests {
     }
 
     @Test("extractPlainText removes HTML tags")
-    func extractPlainTextRemoveTags() async throws {
+    internal func extractPlainTextRemoveTags() async throws {
       let html = "<div><p>This is <strong>bold</strong> and <em>italic</em> text</p></div>"
       let plainText = Article.extractPlainText(from: html)
 
@@ -64,7 +64,7 @@ extension ArticleTests {
     }
 
     @Test("extractPlainText decodes HTML entities")
-    func extractPlainTextDecodeEntities() async throws {
+    internal func extractPlainTextDecodeEntities() async throws {
       let html = "Test&nbsp;&amp;&lt;&gt;&quot;"
       let plainText = Article.extractPlainText(from: html)
 
@@ -77,7 +77,7 @@ extension ArticleTests {
     }
 
     @Test("extractPlainText handles nested HTML")
-    func extractPlainTextNestedHTML() async throws {
+    internal func extractPlainTextNestedHTML() async throws {
       let html = "<div><article><h1>Title</h1><p>Paragraph</p></article></div>"
       let plainText = Article.extractPlainText(from: html)
 
@@ -87,13 +87,13 @@ extension ArticleTests {
     }
 
     @Test("extractPlainText returns nil for nil input")
-    func extractPlainTextNilInput() async throws {
+    internal func extractPlainTextNilInput() async throws {
       let plainText = Article.extractPlainText(from: nil)
       #expect(plainText == nil)
     }
 
     @Test("calculateWordCount accurate for normal text")
-    func calculateWordCountNormalText() async throws {
+    internal func calculateWordCountNormalText() async throws {
       let text = "This is a simple test with seven words"
       let count = Article.calculateWordCount(from: text)
 
@@ -101,7 +101,7 @@ extension ArticleTests {
     }
 
     @Test("calculateWordCount handles multiple spaces")
-    func calculateWordCountMultipleSpaces() async throws {
+    internal func calculateWordCountMultipleSpaces() async throws {
       let text = "Words   with    multiple     spaces"
       let count = Article.calculateWordCount(from: text)
 
@@ -109,13 +109,13 @@ extension ArticleTests {
     }
 
     @Test("calculateWordCount returns nil for nil input")
-    func calculateWordCountNilInput() async throws {
+    internal func calculateWordCountNilInput() async throws {
       let count = Article.calculateWordCount(from: nil)
       #expect(count == nil)
     }
 
     @Test("estimateReadingTime assumes 200 words per minute")
-    func estimateReadingTime200WPM() async throws {
+    internal func estimateReadingTime200WPM() async throws {
       let time = Article.estimateReadingTime(wordCount: 200)
       #expect(time == 1)
 
@@ -127,13 +127,13 @@ extension ArticleTests {
     }
 
     @Test("estimateReadingTime returns minimum 1 minute")
-    func estimateReadingTimeMinimum() async throws {
+    internal func estimateReadingTimeMinimum() async throws {
       let time = Article.estimateReadingTime(wordCount: 50)
       #expect(time == 1)  // Less than 200 words still returns 1 minute
     }
 
     @Test("estimateReadingTime returns nil for nil or zero input")
-    func estimateReadingTimeNilZero() async throws {
+    internal func estimateReadingTimeNilZero() async throws {
       #expect(Article.estimateReadingTime(wordCount: nil) == nil)
       #expect(Article.estimateReadingTime(wordCount: 0) == nil)
     }
