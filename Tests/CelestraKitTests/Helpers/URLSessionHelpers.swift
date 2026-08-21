@@ -35,7 +35,7 @@ import Testing
 #endif
 
 // Register MockURLProtocol globally once when module loads
-private let mockURLProtocolRegistration: Void = {
+fileprivate let mockURLProtocolRegistration: Void = {
   URLProtocol.registerClass(MockURLProtocol.self)
 }()
 
