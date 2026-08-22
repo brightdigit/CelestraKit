@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - main
+      # `celestra` is the branch Celestra's git-subrepo tracks, and version
+      # branches mirror the consumer's scheme. Without these, `git subrepo push`
+      # lands changes here with no CI at all — Celestra's own CI compiles this
+      # package's sources but not its tests.
+      - celestra
+      - 'v*.*.*'
+      - 'v*.*.*-*'
   pull_request:
 env:
   PACKAGE_NAME: CelestraKit
