@@ -39,8 +39,8 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite(
     "RSSFetcherService parseUpdateInterval() - Priority Tests", .serialized, .tags(.networkMock))
-  final class Priority {
-    init() async {
+  internal final class Priority {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -51,7 +51,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("TTL takes priority over syndication module")
-    func ttlTakesPriorityOverSyndication() async throws {
+    internal func ttlTakesPriorityOverSyndication() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-ttl-and-syndication.xml")
 

@@ -38,8 +38,8 @@ import Testing
 
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService fetchFeed() Success Cases", .serialized, .tags(.networkMock))
-  final class FetchSuccess {
-    init() async {
+  internal final class FetchSuccess {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -50,7 +50,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Fetch basic RSS feed successfully")
-    func fetchBasicRSSFeed() async throws {
+    internal func fetchBasicRSSFeed() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/basic-rss.xml")
 
@@ -83,7 +83,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Fetch Atom feed successfully")
-    func fetchAtomFeed() async throws {
+    internal func fetchAtomFeed() async throws {
       let feedURL = URL(string: "https://example.com/atom.xml")!
       let mockData = try FixtureLoader.load("Atom/basic-atom.xml")
 
@@ -113,7 +113,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Feed items contain all expected fields")
-    func feedItemsContainAllFields() async throws {
+    internal func feedItemsContainAllFields() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/basic-rss.xml")
 

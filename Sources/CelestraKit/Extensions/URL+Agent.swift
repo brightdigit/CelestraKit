@@ -31,14 +31,14 @@ import Foundation
 
 extension URL {
   internal enum Agent {
-    static let cloud: URL = {
+    internal static let cloud: URL = {
       guard let url = URL(string: "https://github.com/brightdigit/CelestraCloud") else {
         preconditionFailure("Invalid URL for cloud agent")
       }
       return url
     }()
 
-    static let app: URL = {
+    internal static let app: URL = {
       guard let url = URL(string: "https://celestr.app") else {
         preconditionFailure("Invalid URL for app agent")
       }

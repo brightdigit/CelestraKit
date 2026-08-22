@@ -7,7 +7,7 @@ extension FeedTests {
   @Suite("Feed Initialization Tests")
   internal struct Initialization {
     @Test("Initialize with minimal parameters")
-    func initializeMinimal() async throws {
+    internal func initializeMinimal() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Example Feed"
@@ -28,7 +28,7 @@ extension FeedTests {
     }
 
     @Test("Initialize with all parameters")
-    func initializeComplete() async throws {
+    internal func initializeComplete() async throws {
       let now = Date()
       let feed = Feed(
         recordName: "record123",
@@ -73,7 +73,7 @@ extension FeedTests {
     }
 
     @Test("Initialize with nil optional fields")
-    func initializeWithNils() async throws {
+    internal func initializeWithNils() async throws {
       let feed = Feed(
         feedURL: "https://example.com/feed.xml",
         title: "Feed with Nils",
@@ -99,7 +99,7 @@ extension FeedTests {
     }
 
     @Test("Initialize with empty arrays and strings")
-    func initializeWithEmptyValues() async throws {
+    internal func initializeWithEmptyValues() async throws {
       let feed = Feed(
         feedURL: "",
         title: "",
@@ -112,7 +112,7 @@ extension FeedTests {
     }
 
     @Test("Initialize with boundary quality score values")
-    func initializeBoundaryValues() async throws {
+    internal func initializeBoundaryValues() async throws {
       let feed1 = Feed(
         feedURL: "https://example.com/feed1.xml",
         title: "Feed 1",

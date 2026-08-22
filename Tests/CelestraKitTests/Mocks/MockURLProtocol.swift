@@ -35,6 +35,11 @@ import Foundation
 
 /// Mock URLProtocol for intercepting network requests in tests
 /// Tests use a static handler with semaphore-based serialization to prevent race conditions
+// URLProtocol is a non-final Foundation class with mutable internal state, so a
+// subclass cannot express proper Sendable conformance. Safety here comes from the
+// semaphore serialisation documented below, not from the type system — which is
+// exactly the case the no_unchecked_sendable rule cannot distinguish.
+// swiftlint:disable:next no_unchecked_sendable
 internal final class MockURLProtocol: URLProtocol, @unchecked Sendable {
   /// Static handler for intercepting requests
   /// Tests must use mockURLProtocolSemaphore to serialize access

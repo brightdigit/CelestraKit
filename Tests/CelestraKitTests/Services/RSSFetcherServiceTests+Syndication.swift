@@ -39,8 +39,8 @@ import Testing
 extension RSSFetcherServiceTests {
   @Suite(
     "RSSFetcherService parseUpdateInterval() - Syndication Tests", .serialized, .tags(.networkMock))
-  final class Syndication {
-    init() async {
+  internal final class Syndication {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -51,7 +51,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Parse syndication hourly period")
-    func parseSyndicationHourly() async throws {
+    internal func parseSyndicationHourly() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-syndication-hourly.xml")
 
@@ -74,7 +74,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Parse syndication daily period")
-    func parseSyndicationDaily() async throws {
+    internal func parseSyndicationDaily() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-syndication-daily.xml")
 
@@ -97,7 +97,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Parse syndication weekly period")
-    func parseSyndicationWeekly() async throws {
+    internal func parseSyndicationWeekly() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-syndication-weekly.xml")
 
@@ -120,7 +120,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Parse syndication monthly period")
-    func parseSyndicationMonthly() async throws {
+    internal func parseSyndicationMonthly() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-syndication-monthly.xml")
 
@@ -143,7 +143,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Parse syndication yearly period")
-    func parseSyndicationYearly() async throws {
+    internal func parseSyndicationYearly() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let mockData = try FixtureLoader.load("RSS/rss-with-syndication-yearly.xml")
 

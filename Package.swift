@@ -4,7 +4,7 @@
 import PackageDescription
 
 // MARK: - Swift Settings Configuration
-let swiftSettings: [SwiftSetting] = [
+internal let swiftSettings: [SwiftSetting] = [
     // Swift 6.2 Upcoming Features (not yet enabled by default)
     .enableUpcomingFeature("ExistentialAny"),                    // SE-0335: Introduce existential `any`
     .enableUpcomingFeature("InternalImportsByDefault"),          // SE-0409: Access-level modifiers on import declarations
@@ -44,7 +44,7 @@ let swiftSettings: [SwiftSetting] = [
     ])
 ]
 
-let package = Package(
+internal let package = Package(
     name: "CelestraKit",
     platforms: [
         .iOS(.v26),

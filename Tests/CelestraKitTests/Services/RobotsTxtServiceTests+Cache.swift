@@ -9,8 +9,8 @@ import Testing
 
 extension RobotsTxtServiceTests {
   @Suite("RobotsTxtService Cache Tests", .serialized, .tags(.networkMock))
-  final class Cache {
-    init() async {
+  internal final class Cache {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -21,7 +21,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Cache stores and retrieves rules")
-    func testCacheStoresRules() async throws {
+    internal func testCacheStoresRules() async throws {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       // Clear cache first
@@ -38,7 +38,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("isAllowed handles URLs without host")
-    func testIsAllowedWithoutHost() async throws {
+    internal func testIsAllowedWithoutHost() async throws {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       // URLs without host should be allowed
@@ -49,7 +49,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("getCrawlDelay returns nil for URLs without host")
-    func testGetCrawlDelayWithoutHost() async throws {
+    internal func testGetCrawlDelayWithoutHost() async throws {
       let service = RobotsTxtService(userAgent: UserAgent.app(build: 1))
 
       let urlWithoutHost = URL(string: "/path/to/resource")!

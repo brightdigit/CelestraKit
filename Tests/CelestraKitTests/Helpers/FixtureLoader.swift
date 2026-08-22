@@ -59,4 +59,4 @@ internal enum FixtureLoader {
 }
 
 // Helper class for getting test bundle in non-SPM contexts
-private class TestBundleClass {}
+fileprivate class TestBundleClass {}

@@ -33,9 +33,9 @@ import Testing
 @testable import CelestraKit
 
 @Suite("RSSFetcherError Tests")
-struct RSSFetcherErrorTests {
+internal struct RSSFetcherErrorTests {
   @Test("invalidFeedData error has correct description")
-  func testInvalidFeedDataDescription() async throws {
+  internal func testInvalidFeedDataDescription() async throws {
     let error = RSSFetcherError.invalidFeedData("Malformed XML")
     let description = error.errorDescription
 
@@ -45,7 +45,7 @@ struct RSSFetcherErrorTests {
   }
 
   @Test("rssFetchFailed error includes URL and underlying error")
-  func testRssFetchFailedDescription() async throws {
+  internal func testRssFetchFailedDescription() async throws {
     let url = URL(string: "https://example.com/feed.xml")!
     let underlyingError = URLError(.badServerResponse)
     let error = RSSFetcherError.rssFetchFailed(url, underlying: underlyingError)
@@ -56,7 +56,7 @@ struct RSSFetcherErrorTests {
   }
 
   @Test("Errors conform to LocalizedError")
-  func testLocalizedErrorConformance() async throws {
+  internal func testLocalizedErrorConformance() async throws {
     let error = RSSFetcherError.invalidFeedData("Test")
     let _: any LocalizedError = error  // Compile-time check
     #expect(error.errorDescription != nil)

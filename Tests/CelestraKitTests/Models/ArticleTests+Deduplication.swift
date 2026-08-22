@@ -7,7 +7,7 @@ extension ArticleTests {
   @Suite("Article Deduplication Tests")
   internal struct Deduplication {
     @Test("isDuplicate returns true for same contentHash")
-    func isDuplicateSameHash() async throws {
+    internal func isDuplicateSameHash() async throws {
       let article1 = Article(
         feedRecordName: "feed123",
         guid: "article-guid-1",
@@ -26,7 +26,7 @@ extension ArticleTests {
     }
 
     @Test("isDuplicate returns false for different contentHash")
-    func isDuplicateDifferentHash() async throws {
+    internal func isDuplicateDifferentHash() async throws {
       let article1 = Article(
         feedRecordName: "feed123",
         guid: "article-guid-1",
@@ -45,7 +45,7 @@ extension ArticleTests {
     }
 
     @Test("isDuplicate with same title but different URLs")
-    func isDuplicateSameTitleDifferentURL() async throws {
+    internal func isDuplicateSameTitleDifferentURL() async throws {
       let article1 = Article(
         feedRecordName: "feed123",
         guid: "article-guid-1",

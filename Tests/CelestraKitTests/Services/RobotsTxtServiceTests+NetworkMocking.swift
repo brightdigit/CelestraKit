@@ -9,8 +9,8 @@ import Testing
 
 extension RobotsTxtServiceTests {
   @Suite("RobotsTxtService Network Mocking Tests", .serialized, .tags(.networkMock))
-  final class NetworkMocking {
-    init() async {
+  internal final class NetworkMocking {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -21,7 +21,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Network request uses injected URLSession")
-    func testUsesInjectedURLSession() async throws {
+    internal func testUsesInjectedURLSession() async throws {
       let robotsURL = URL(string: "https://example.com/robots.txt")!
       let robotsContent = """
         User-agent: *
@@ -65,7 +65,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Allow everything when robots.txt returns 404")
-    func testRobotsTxtNotFound() async throws {
+    internal func testRobotsTxtNotFound() async throws {
       MockURLProtocol.requestHandler = { request in
         // Handle all URLs - return 404 for robots.txt to simulate not found
         let response = HTTPURLResponse(
@@ -87,7 +87,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Allow everything on network error (fail open)")
-    func testNetworkErrorFailsOpen() async throws {
+    internal func testNetworkErrorFailsOpen() async throws {
       MockURLProtocol.requestHandler = { _ in
         throw URLError(.notConnectedToInternet)
       }
@@ -102,7 +102,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Respect disallow rules from robots.txt")
-    func testRespectsDisallowRules() async throws {
+    internal func testRespectsDisallowRules() async throws {
       let robotsURL = URL(string: "https://example.com/robots.txt")!
       let robotsContent = """
         User-agent: *
@@ -151,7 +151,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Parse and return crawl delay from robots.txt")
-    func testParseCrawlDelay() async throws {
+    internal func testParseCrawlDelay() async throws {
       let robotsURL = URL(string: "https://example.com/robots.txt")!
       let robotsContent = """
         User-agent: *
@@ -191,7 +191,7 @@ extension RobotsTxtServiceTests {
     }
 
     @Test("Cache robots.txt and avoid duplicate requests")
-    func testCachingBehavior() async throws {
+    internal func testCachingBehavior() async throws {
       let robotsURL = URL(string: "https://example.com/robots.txt")!
       let robotsContent = """
         User-agent: *

@@ -38,8 +38,8 @@ import Testing
 
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService 304 Not Modified Tests", .serialized, .tags(.networkMock))
-  final class NotModified {
-    init() async {
+  internal final class NotModified {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -50,7 +50,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Handle 304 Not Modified response")
-    func handle304NotModified() async throws {
+    internal func handle304NotModified() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
 
       MockURLProtocol.requestHandler = { request in

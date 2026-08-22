@@ -38,8 +38,8 @@ import Testing
 
 extension RSSFetcherServiceTests {
   @Suite("RSSFetcherService Conditional Headers Tests", .serialized, .tags(.networkMock))
-  final class ConditionalHeaders {
-    init() async {
+  internal final class ConditionalHeaders {
+    internal init() async {
       await mockURLProtocolCoordinator.acquire()
     }
 
@@ -50,7 +50,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Send If-Modified-Since header when lastModified provided")
-    func sendsIfModifiedSinceHeader() async throws {
+    internal func sendsIfModifiedSinceHeader() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let expectedLastModified = "Mon, 01 Jan 2024 12:00:00 GMT"
 
@@ -75,7 +75,7 @@ extension RSSFetcherServiceTests {
     }
 
     @Test("Send If-None-Match header when etag provided")
-    func sendsIfNoneMatchHeader() async throws {
+    internal func sendsIfNoneMatchHeader() async throws {
       let feedURL = URL(string: "https://example.com/feed.xml")!
       let expectedEtag = "\"abc123\""
 

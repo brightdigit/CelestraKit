@@ -33,9 +33,9 @@ import Testing
 @testable import CelestraKit
 
 @Suite("CloudKitConversionError Tests")
-struct CloudKitConversionErrorTests {
+internal struct CloudKitConversionErrorTests {
   @Test("missingRequiredField error has correct description")
-  func testMissingRequiredFieldDescription() async throws {
+  internal func testMissingRequiredFieldDescription() async throws {
     let error = CloudKitConversionError.missingRequiredField(
       fieldName: "title",
       recordType: "Feed"
@@ -48,7 +48,7 @@ struct CloudKitConversionErrorTests {
   }
 
   @Test("invalidFieldType error has correct description")
-  func testInvalidFieldTypeDescription() async throws {
+  internal func testInvalidFieldTypeDescription() async throws {
     let error = CloudKitConversionError.invalidFieldType(
       fieldName: "qualityScore",
       expected: "Int",
@@ -62,7 +62,7 @@ struct CloudKitConversionErrorTests {
   }
 
   @Test("invalidFieldValue error has correct description")
-  func testInvalidFieldValueDescription() async throws {
+  internal func testInvalidFieldValueDescription() async throws {
     let error = CloudKitConversionError.invalidFieldValue(
       fieldName: "feedURL",
       reason: "Not a valid URL"
@@ -74,7 +74,7 @@ struct CloudKitConversionErrorTests {
   }
 
   @Test("Errors conform to LocalizedError")
-  func testLocalizedErrorConformance() async throws {
+  internal func testLocalizedErrorConformance() async throws {
     let error = CloudKitConversionError.missingRequiredField(
       fieldName: "test",
       recordType: "Test"

@@ -7,7 +7,7 @@ extension ArticleTests {
   @Suite("Article Initialization Tests")
   internal struct Initialization {
     @Test("Initialize with default TTL (30 days)")
-    func initializeDefaultTTL() async throws {
+    internal func initializeDefaultTTL() async throws {
       let now = Date()
       let article = Article(
         feedRecordName: "feed123",
@@ -23,7 +23,7 @@ extension ArticleTests {
     }
 
     @Test("Initialize with custom TTL")
-    func initializeCustomTTL() async throws {
+    internal func initializeCustomTTL() async throws {
       let now = Date()
       let article = Article(
         feedRecordName: "feed123",
@@ -41,7 +41,7 @@ extension ArticleTests {
     }
 
     @Test("Initialize with automatic contentText extraction")
-    func initializeContentTextExtraction() async throws {
+    internal func initializeContentTextExtraction() async throws {
       let htmlContent = "<p>This is <strong>HTML</strong> content</p>"
       let article = Article(
         feedRecordName: "feed123",
@@ -57,7 +57,7 @@ extension ArticleTests {
     }
 
     @Test("Initialize with automatic wordCount calculation")
-    func initializeWordCount() async throws {
+    internal func initializeWordCount() async throws {
       let content = "This is a test article with nine words here"
       let article = Article(
         feedRecordName: "feed123",
@@ -71,7 +71,7 @@ extension ArticleTests {
     }
 
     @Test("Initialize with automatic estimatedReadingTime")
-    func initializeReadingTime() async throws {
+    internal func initializeReadingTime() async throws {
       // 400 words at 200 wpm = 2 minutes
       let words = Array(repeating: "word", count: 400).joined(separator: " ")
       let article = Article(
@@ -87,7 +87,7 @@ extension ArticleTests {
     }
 
     @Test("Initialize with nil optional fields")
-    func initializeWithNils() async throws {
+    internal func initializeWithNils() async throws {
       let article = Article(
         recordName: nil,
         recordChangeTag: nil,
