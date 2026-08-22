@@ -1,0 +1,51 @@
+name: Setup CelestraKit
+description: Replaces a local CelestraKit path dependency with a remote reference, pinned to the branch's current commit
+
+inputs:
+  branch:
+    description: CelestraKit branch to use (leave empty to keep the local path dependency)
+    default: celestra
+
+runs:
+  using: composite
+  steps:
+    # Resolve the branch to its current HEAD commit and pin the dependency by
+    # `revision:` rather than `branch:`. This makes the dependency content-addressed,
+    # so `swift package dump-package` (which swift-build@v1 hashes for its cache key)
+    # changes whenever the CelestraKit branch advances — otherwise a new commit on
+    # the same branch yields a stale cache hit and is never rebuilt. Falls back to a
+    # `branch:` pin if the ref can't be resolved (e.g. offline).
+    - name: Update Package.swift (Unix)
+      if: inputs.branch != '' && runner.os != 'Windows'
+      shell: bash
+      run: |
+        BRANCH='${{ inputs.branch }}'
+        REF=$(git ls-remote https://github.com/brightdigit/CelestraKit.git "$BRANCH" | head -n1 | cut -f1)
+        if [ -n "$REF" ]; then
+          REQ='revision: "'"$REF"'"'
+          echo "Pinning CelestraKit to $BRANCH @ $REF"
+        else
+          REQ='branch: "'"$BRANCH"'"'
+          echo "Could not resolve $BRANCH to a commit; pinning by branch"
+        fi
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          sed -i '' 's|\.package(path: "\.\./CelestraKit")|.package(url: "https://github.com/brightdigit/CelestraKit.git", '"$REQ"')|g' Package.swift
+        else
+          sed -i 's|\.package(path: "\.\./CelestraKit")|.package(url: "https://github.com/brightdigit/CelestraKit.git", '"$REQ"')|g' Package.swift
+        fi
+        rm -f Package.resolved
+    - name: Update Package.swift (Windows)
+      if: inputs.branch != '' && runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $branch = '${{ inputs.branch }}'
+        $ref = (git ls-remote https://github.com/brightdigit/CelestraKit.git $branch | Select-Object -First 1) -split "`t" | Select-Object -First 1
+        if ($ref) {
+          $req = "revision: `"$ref`""
+          Write-Host "Pinning CelestraKit to $branch @ $ref"
+        } else {
+          $req = "branch: `"$branch`""
+          Write-Host "Could not resolve $branch to a commit; pinning by branch"
+        }
+        (Get-Content Package.swift) -replace '\.package\(path: "\.\./CelestraKit"\)', ".package(url: `"https://github.com/brightdigit/CelestraKit.git`", $req)" | Set-Content Package.swift
+        Remove-Item -Path Package.resolved -Force -ErrorAction SilentlyContinue
