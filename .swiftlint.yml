@@ -6,8 +6,9 @@ excluded:
   - Mint
 
 # ─── Shared rule set ───────────────────────────────────────────────────────────
-# Kept in sync with the CelestraKit subrepo. Only `included`/`excluded` and
-# `reporter` differ between the two repos; everything below must stay identical.
+# Kept in sync across Celestra, the CelestraKit subrepo and the CelestraCloud
+# subrepo. Only `included`/`excluded` and `reporter` differ between the three;
+# everything below must stay identical.
 
 opt_in_rules:
   - array_init
@@ -39,7 +40,11 @@ opt_in_rules:
   - explicit_acl
   - explicit_init
   - explicit_top_level_acl
-  - extension_access_modifier
+  # extension_access_modifier is deliberately NOT opted into: it wants
+  # `public extension X { func f() }`, while .swift-format has
+  # NoAccessLevelOnExtensionDeclaration: true, which rewrites that back to
+  # `extension X { public func f() }`. The formatter runs last, so the two
+  # can never both be satisfied. The formatter wins.
   - fallthrough
   - fatal_error_message
   - file_length
@@ -95,13 +100,11 @@ opt_in_rules:
   - nsobject_prefer_isequal
   - number_separator
   - object_literal
-  - opening_brace
   - operator_usage_whitespace
   - operator_whitespace
   - optional_enum_case_matching
   - overridden_super_call
   - override_in_extension
-  - pattern_matching_keywords
   - prefer_self_type_over_type_of_self
   - prefer_zero_over_explicit_init
   - prefixed_toplevel_constant
@@ -163,6 +166,15 @@ opt_in_rules:
   - yoda_condition
 disabled_rules:
   - closure_parameter_position
+  # opening_brace and pattern_matching_keywords both contradict .swift-format,
+  # which runs last and therefore always wins:
+  #   - swift-format moves the brace to its own line whenever a signature or
+  #     condition wraps; opening_brace demands it stay on the same line.
+  #   - UseLetInEveryBoundCaseVariable: true rewrites `case let .x(a, b)` to
+  #     `case .x(let a, let b)`; pattern_matching_keywords demands the reverse.
+  # Enabling either produces violations no edit can clear.
+  - opening_brace
+  - pattern_matching_keywords
   - function_default_parameter_at_end
   - optional_data_string_conversion
   - todo
