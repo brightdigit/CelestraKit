@@ -75,6 +75,21 @@ public struct RSSFetcherService {
   ///   - lastModified: Optional Last-Modified header from previous fetch
   ///   - etag: Optional ETag header from previous fetch
   /// - Returns: Fetch response with feed data and HTTP metadata
+  /// Builds a request carrying the conditional-GET headers a caller already holds,
+  /// so the server can answer 304 instead of resending an unchanged feed.
+  private static func conditionalRequest(
+    for url: URL, lastModified: String?, etag: String?
+  ) -> URLRequest {
+    var request = URLRequest(url: url)
+    if let lastModified {
+      request.setValue(lastModified, forHTTPHeaderField: "If-Modified-Since")
+    }
+    if let etag {
+      request.setValue(etag, forHTTPHeaderField: "If-None-Match")
+    }
+    return request
+  }
+
   public func fetchFeed(
     from url: URL,
     lastModified: String? = nil,
@@ -82,14 +97,7 @@ public struct RSSFetcherService {
   ) async throws -> FetchResponse {
     CelestraLogger.rss.info("📡 Fetching RSS feed from \(url.absoluteString)")
 
-    // Build request with conditional headers
-    var request = URLRequest(url: url)
-    if let lastModified = lastModified {
-      request.setValue(lastModified, forHTTPHeaderField: "If-Modified-Since")
-    }
-    if let etag = etag {
-      request.setValue(etag, forHTTPHeaderField: "If-None-Match")
-    }
+    let request = Self.conditionalRequest(for: url, lastModified: lastModified, etag: etag)
 
     do {
       // 1. Fetch RSS XML from URL

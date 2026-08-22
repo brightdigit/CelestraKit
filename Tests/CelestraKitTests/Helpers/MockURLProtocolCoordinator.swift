@@ -1,5 +1,5 @@
 //
-//  URLSessionHelpers.swift
+//  MockURLProtocolCoordinator.swift
 //  CelestraKit
 //
 //  Created by Leo Dion.
